@@ -1,0 +1,99 @@
+﻿<div class="jumbotron">
+    <h1>Pluralsight Downloader</h1>
+    <p class="lead">Empty Text</p>
+</div>
+<div class="row" ng-controller="courseCtrl as vm">
+    <div class="col-md-12">
+        <form name="form" role="form" valid-submit="vm.loadCourseData(form.$valid)" novalidate>
+            <div class="form-group" ng-class="{ 'has-error' : (form.$submitted || form.coursetitle.$dirty) && form.coursetitle.$invalid}">
+                <label>Enter below course name or course complete url:</label>
+                <br /><span class="hint">example: <b>(http://www.pluralsight.com/courses/mvc4-building)</b> OR <b>(mvc4-building)</b></span>
+                <input type="text" name="coursetitle" class="form-control" ng-model="vm.courseName" placeholder="course name or course url" autofocus="true" required />
+                <p ng-show="(form.$submitted || form.coursetitle.$dirty) && form.coursetitle.$error.required" class="help-block" ng-cloak>Course title is required.</p>
+            </div>
+            <button class="btn btn-primary" type="submit"> Load course content information </button>
+        </form>
+        <div class="col-md-12 courses" style="margin-top:20px;" ng-show="vm.course" ng-cloak>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td class="bold">Title: </td>
+                        <td ng-bind="vm.course.title"></td>
+                    </tr>
+                    <tr>
+                        <td class="bold">Average Rating: </td>
+                        <td ng-bind="vm.course.courseRating.averageRating"></td>
+                    </tr>
+                    <tr>
+                        <td class="bold">Number Of Raters: </td>
+                        <td ng-bind="vm.course.courseRating.numberOfRaters"></td>
+                    </tr>
+                    <tr>
+                        <td class="bold">Duration: </td>
+                        <td ng-bind="vm.course.duration"></td>
+                    </tr>
+                    <tr>
+                        <td class="bold">Level: </td>
+                        <td ng-bind="vm.course.level"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Table of contents:</h2>
+            <accordion close-others="true">
+                <accordion-group ng-repeat="module in vm.course.courseModules" heading="{{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}" is-open="false">
+                    <p>{{module.description}}</p>
+                    <table class="table table-bordered table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Duration</th>
+                                <th>Free to view ?</th>
+                                <th>Donwload</th>
+                                <th width="110px" class="text-center">Already downloaded ?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="clip in module.clips">
+                                <td>
+                                    {{($index + 1) + '- ' + clip.title}}
+                                    <span class="label label-success italic" ng-if="clip.progress.hasBeenDownloaded"><i class="glyphicon-ok glyphicon"></i> Downloaded</span>
+                                    <span class="label label-default italic" ng-if="!clip.progress.hasBeenDownloaded">Not downloaded yet!</span>
+                                </td>
+                                <td ng-bind="clip.duration"></td>
+                                <td>
+                                    <span class="mayview glyphicon glyphicon-ok-circle center-block text-center text-success" ng-if="clip.userMayViewClip"></span>
+                                    <span class="mayview glyphicon glyphicon-ban-circle center-block text-center text-danger" ng-if="!clip.userMayViewClip"></span>
+                                </td>
+                                <td>
+                                    <div>
+                                        <button class="btn btn-success" ng-click="vm.downloadClip(clip,module)" ng-disabled="(clip.progress.isDownloading && !clip.progress.isFinished) || clip.progress.hasBeenDownloaded">
+                                            <i class="glyphicon glyphicon-download"></i> Download
+                                        </button>
+                                    </div>
+                                    <progressbar value="clip.progress.percentComplete * 100" class="progress-striped">
+                                        <b>{{clip.progress.percentComplete * 100 | number:0}}%</b>
+                                    </progressbar>
+                                </td>
+                                <td valign="middle" class="text-center">
+                                    <div class="radio">
+                                        <input type="radio" name="alreadyDownloaded{{$parent.$index + '' + $index}}" id="downloaded{{$parent.$index + '' + $index}}" ng-value="true" ng-model="clip.progress.hasBeenDownloaded" ng-disabled="(clip.progress.isDownloading && !clip.progress.isFinished)">
+                                        <label for=" downloaded{{$parent.$index + '' + $index}}">
+                                            Yep
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <input type="radio" name="alreadyDownloaded{{$parent.$index + '' + $index}}" id="notdownloaded{{$parent.$index + '' + $index}}" ng-value="false" ng-model="clip.progress.hasBeenDownloaded" ng-disabled="(clip.progress.isDownloading && !clip.progress.isFinished)">
+                                        <label for="notdownloaded{{$parent.$index + '' + $index}}">
+                                            Nope
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </accordion-group>
+            </accordion>
+        </div>
+    </div>
+</div>
