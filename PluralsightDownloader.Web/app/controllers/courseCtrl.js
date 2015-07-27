@@ -12,6 +12,7 @@
         vm.loadCourseData = loadCourseData;
         vm.course = undefined;
         vm.downloadClip = downloadClip;
+        vm.downloadModuleClips = downloadModuleClips;
 
         activate();
         /////////////////////////////////////
@@ -36,7 +37,7 @@
         }
 
         function loadCourseData() {
-            var title = vm.courseName;
+            var title = vm.courseName.replace(/\s/g, '');
             if (vm.courseName.indexOf('/') > 0) {
                 title = _.last(vm.courseName.split('/'));
             }
@@ -47,6 +48,12 @@
                 } else {
                     vm.course = course;
                 }
+            }, function (error) {
+                toaster.pop({
+                    type: 'error',
+                    title: '',
+                    body: 'Couldn\'t retrieve course data. Please make sure that you have the correct course name and try again.',
+                });
             });
         }
 
@@ -75,15 +82,15 @@
                     clip.progress.isDownloading = false;
                 }, 0);
             }, function (errorResponse) {
-                debugger;
                 switch (errorResponse.status) {
                     case 429:
+                        var downloadDelaySec = _.random(5, 15);
                         toaster.pop({
                             type: 'error',
                             title: '',
-                            body: 'Couldn\'t download video <b>"' + clip.title + '</b> due to many requests in short time". Trying again in 5 seconds.',
+                            body: 'Couldn\'t download video <b>"' + clip.title + '</b> due to many requests in short time". Trying again in ' + downloadDelaySec + ' seconds.',
                             bodyOutputType: 'trustedHtml',
-                            timeout: '5000',
+                            timeout: downloadDelaySec + '000',
                             progressBar: true,
                             onHideCallback: function () {
                                 vm.downloadClip(clip, module, true);
@@ -108,6 +115,14 @@
                 }
                 clip.progress.isDownloading = false;
                 clip.progress.hasBeenDownloaded = false;
+            });
+        }
+
+        function downloadModuleClips(module) {
+            _.forEach(module.clips, function (clip, clipIndex) {
+                $timeout(function () {
+                    vm.downloadClip(clip, module);
+                }, clipIndex * 2 + '000');
             });
         }
     }

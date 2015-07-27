@@ -41,7 +41,13 @@
 
             <h2>Table of contents:</h2>
             <accordion close-others="true">
-                <accordion-group ng-repeat="module in vm.course.courseModules" heading="{{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}" is-open="false">
+                <accordion-group ng-repeat="module in vm.course.courseModules" heading="{{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}">
+                    <accordion-heading>
+                        {{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}
+                        <div class="pull-right btn-group btn-group-xs">
+                            <button class="btn btn-success btn-xs" ng-click="vm.downloadModuleClips(module)">Download all module clips</button>
+                        </div>
+                    </accordion-heading>
                     <p>{{module.description}}</p>
                     <table class="table table-bordered table-condensed">
                         <thead>
