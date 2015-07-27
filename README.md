@@ -17,6 +17,7 @@ Simply trying to mimic ***Internet Download Manager(IDM)***, through fiddler and
 Things to note:
 -----------------------------
  - Your feedback is highly appreciated.
+ - No need for valid subscription for free videos.
  - The project may be not fully *well* *right* *configurable*, but it does the job very ***well*** and ***enough***.
  - The project is meant to run locally for simplicty(instead of save videos on the server then save them again on the user PC), debugging and extendability.
  - Please please, don't forget to replace the ***USER_NAME*** and ***PASSWORD*** located in ***Web.config*** with your subscription values, as well as ***DOWNLOAD_FOLDER_PATH*** with your desired folder to download in.
