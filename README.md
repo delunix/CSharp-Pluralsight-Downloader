@@ -4,6 +4,7 @@ A Pluralsight Downloader using C#
 The motive behind this project:
 -----------------------------
 - I have a valid subscription to pluralsight and due to internet problems and not having the money luxury to renew my subsrciptin, I wanted to save the videos locally to that I could be able to watch them later.
+- Be able to save entire course videos in a folder structured way with order.
 - Display the number of ***raters*** of a given course which is not displayed on Pluralsight website. 
 
 The idea of the project:
