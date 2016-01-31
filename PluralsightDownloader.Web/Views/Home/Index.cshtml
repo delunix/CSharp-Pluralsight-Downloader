@@ -16,10 +16,14 @@
         <div class="col-md-12 courses" style="margin-top:20px;" ng-show="vm.course" ng-cloak>
             <table class="table">
                 <tbody>
+                <tr>
+                    <td class="bold">Title: </td>
+                    <td ng-bind="vm.course.title"></td>
+                </tr>
                     <tr>
-                        <td class="bold">Title: </td>
-                        <td ng-bind="vm.course.title"></td>
-                    </tr>
+                        <td class="bold">Description: </td>
+                        <td ng-bind="vm.course.description"></td>
+                    </tr>                    
                     <tr>
                         <td class="bold">Average Rating: </td>
                         <td ng-bind="vm.course.courseRating.averageRating"></td>
@@ -36,11 +40,15 @@
                         <td class="bold">Level: </td>
                         <td ng-bind="vm.course.level"></td>
                     </tr>
+                    <tr>
+                        <td class="bold">Released: </td>
+                        <td ng-bind="vm.course.releaseDate | date: 'd MMM, y'"></td>
+                    </tr>
                 </tbody>
             </table>
 
             <h2>Table of contents:</h2>
-            <accordion close-others="true">
+            <accordion close-others="false">
                 <accordion-group ng-repeat="module in vm.course.courseModules" heading="{{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}">
                     <accordion-heading>
                         {{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}

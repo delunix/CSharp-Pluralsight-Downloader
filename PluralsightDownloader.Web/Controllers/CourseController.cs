@@ -108,7 +108,7 @@ namespace PluralsightDownloader.Web.Controllers
                 totalBytes = Int32.Parse(client.ResponseHeaders[HttpResponseHeader.ContentLength]);
                 using (var fileStream = File.OpenWrite(videoSaveLocation))
                 {
-                    for (; ; )
+                    for (;;)
                     {
                         int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
                         if (bytesRead == 0)
@@ -157,8 +157,7 @@ namespace PluralsightDownloader.Web.Controllers
 
         private string GetClipUrl(ClipToSave clip)
         {
-            var http =
-                (HttpWebRequest)WebRequest.Create(new Uri("http://www.pluralsight.com/training/Player/ViewClip"));
+            var http = (HttpWebRequest)WebRequest.Create(new Uri(Constants.COURSE_CLIP_DATA_URL));
             http.Accept = "application/json";
             http.ContentType = "application/json";
             http.Method = "POST";

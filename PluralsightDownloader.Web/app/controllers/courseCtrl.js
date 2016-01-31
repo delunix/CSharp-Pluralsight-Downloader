@@ -52,7 +52,7 @@
                 toaster.pop({
                     type: 'error',
                     title: '',
-                    body: 'Couldn\'t retrieve course data. Please make sure that you have the correct course name and try again.',
+                    body: 'Couldn\'t retrieve course data. Please make sure that you have the correct course name and try again.'
                 });
             });
         }
@@ -68,7 +68,7 @@
             clip.courseTitle = vm.course.title;
             clip.moduleTitle = module.title;
             clip.moduleIndex = _.findIndex(vm.course.courseModules, function (moduleItem) {
-                return moduleItem.title == module.title;
+                return moduleItem.title === module.title;
             });
             return coursesService.downloadCourseModuleClip(clip).then(function (progress) {
                 toaster.pop({
@@ -101,14 +101,14 @@
                         toaster.pop({
                             type: 'error',
                             title: '',
-                            body: 'Invalid user name or password.',
+                            body: 'Invalid user name or password.'
                         });
                         break;
                     default:
                         toaster.pop({
                             type: 'error',
                             title: '',
-                            body: 'Couldn\'t download video <b>"' + clip.title + '</b>". Error: ' + errorResponse.error,
+                            body: 'Couldn\'t download video <b>"' + clip.title + '</b>" due to the following error: "<i>' + errorResponse.error + '</i>"',
                             bodyOutputType: 'trustedHtml'
                         });
                         break;

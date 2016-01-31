@@ -37,7 +37,7 @@
                     deferred.resolve(data);
                 })
                 .error(function (error, status, headers, config) {
-                    deferred.reject({ error: error, status: status });
+                    deferred.reject({ error: error.exceptionMessage, status: status });
                 });
             }
 
@@ -51,7 +51,7 @@
                 deferred.resolve(data);
             })
             .error(function (error, status, headers, config) {
-                deferred.reject({ error: error, status: status });
+                deferred.reject({ error: error.exceptionMessage, status: status });
             });
 
             return deferred.promise;

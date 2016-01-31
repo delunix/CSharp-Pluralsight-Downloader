@@ -8,6 +8,7 @@ namespace PluralsightDownloader.Web
         public static readonly string LOGIN_URL = ConfigurationManager.AppSettings["LOGIN_URL"];
         public static readonly string COURSE_DATA_URL = ConfigurationManager.AppSettings["COURSE_DATA_URL"];
         public static readonly string COURSE_CONTENT_DATA_URL = ConfigurationManager.AppSettings["COURSE_CONTENT_DATA_URL"];
+        public static readonly string COURSE_CLIP_DATA_URL = ConfigurationManager.AppSettings["COURSE_CLIP_DATA_URL"];
         public static readonly string USER_NAME = ConfigurationManager.AppSettings["USER_NAME"];
         public static readonly string PASSWORD = ConfigurationManager.AppSettings["PASSWORD"];
         public static readonly string AUTH_COOKIE = "AuthCookie";
