@@ -8,9 +8,9 @@
         .constant('cfg', {
             PLURALSIGHT: {
                 BASE_URL: 'https://www.pluralsight.com/',
-                LOGIN_URL: 'https://www.pluralsight.com/a/SignIn',
+                LOGIN_URL: 'https://app.pluralsight.com/id/',
                 COURSE_DATA_URL: 'http://www.pluralsight.com/data/course/',
-                COURSE_MODULES_DATA_URL: 'http://www.pluralsight.com/data/course/content/',
+                COURSE_MODULES_DATA_URL: 'http://www.pluralsight.com/data/course/content/'
             }
         });
 

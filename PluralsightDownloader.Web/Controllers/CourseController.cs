@@ -6,14 +6,12 @@ using PluralsightDownloader.Web.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 
 namespace PluralsightDownloader.Web.Controllers
 {
@@ -207,38 +205,7 @@ namespace PluralsightDownloader.Web.Controllers
             return content;
         }
 
-        private string GetRequestVerificationToken(string rawHtml)
-        {
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(rawHtml);
-            var reqVerTokenElement = htmlDoc
-                       .DocumentNode
-                       .Descendants("input")
-                       .FirstOrDefault(n => n.Attributes["name"] != null && n.Attributes["name"].Value == "__RequestVerificationToken")
-                       ;
-            if (reqVerTokenElement != null)
-            {
-                return reqVerTokenElement.Attributes["value"].Value;
-            }
-
-            return null;
-        }
-
-        private Tuple<string, string> PrepareLoginData()
-        {
-            var req = WebRequest.Create(Constants.LOGIN_URL);
-            req.Credentials = CredentialCache.DefaultCredentials;
-            var response = req.GetResponse();
-            var receiveStream = response.GetResponseStream();
-            var readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            string rawHtml = readStream.ReadToEnd();
-            var token = GetRequestVerificationToken(rawHtml);
-            receiveStream.Close();
-            readStream.Close();
-            return Tuple.Create(token, response.Headers["Set-Cookie"]);
-        }
-
-        private string LoginToPluralSight(string requestVerificationToken, string setCookie)
+        private string LoginToPluralSight()
         {
             var req = (HttpWebRequest)WebRequest.Create(Constants.LOGIN_URL);
             req.AllowAutoRedirect = false;
@@ -247,14 +214,11 @@ namespace PluralsightDownloader.Web.Controllers
             using (var writer = new StreamWriter(req.GetRequestStream()))
             {
                 // write to the body of the POST request
-                writer.Write("__RequestVerificationToken=" + requestVerificationToken
-                    + "&UserHandle=" + Constants.USER_NAME
-                    + "&Password=" + Constants.PASSWORD);
+                writer.Write("Username=" + Constants.USER_NAME + "&Password=" + Constants.PASSWORD);
             }
 
             req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0";
             req.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
-            req.Headers.Add("Cookie", setCookie);
             req.Headers.Add("Origin", Constants.BASE_URL);
             req.Headers.Add("Cache-Control", "max-age=0");
 
@@ -271,8 +235,7 @@ namespace PluralsightDownloader.Web.Controllers
 
         private void SetupAuthenticationCookie()
         {
-            Tuple<string, string> prepareLoginData = PrepareLoginData();
-            var authCookie = LoginToPluralSight(prepareLoginData.Item1, prepareLoginData.Item2);
+            var authCookie = LoginToPluralSight();
             if (authCookie.Contains("signin-errors"))
             {
                 // ToDO: better handling of errors returned by pluralsight server.
