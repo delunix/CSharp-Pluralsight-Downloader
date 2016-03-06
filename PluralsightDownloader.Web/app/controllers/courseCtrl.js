@@ -57,7 +57,7 @@
             });
         }
 
-        function downloadClip(clip, module) {
+        function downloadClip(clip, module, continueDownloadNextClip) {
             clip.progress.isDownloading = true;
             toaster.pop({
                 type: 'info',
@@ -81,6 +81,18 @@
                     clip.progress.hasBeenDownloaded = true;
                     clip.progress.isDownloading = false;
                 }, 0);
+
+                // should continue downloading the next clips ?
+                if (continueDownloadNextClip) {
+                    // if yest, // check if there is "next" clip regarding the "current" module
+                    var nextClipModule = _.get(vm.course, '.courseModules[' + progress.extra.moduleIndex + ']');
+                    var nextClipToDownload = nextClipModule.clips[++progress.extra.clipIndex];
+                    if (nextClipToDownload) {
+                        $timeout(function () {
+                            return vm.downloadClip(nextClipToDownload, nextClipModule, continueDownloadNextClip);
+                        }, '3000'); // 3 seconds delay to avoid blocking account.
+                    }
+                }
             }, function (errorResponse) {
                 switch (errorResponse.status) {
                     case 429:
@@ -93,7 +105,7 @@
                             timeout: downloadDelaySec + '000',
                             progressBar: true,
                             onHideCallback: function () {
-                                vm.downloadClip(clip, module, true);
+                                vm.downloadClip(clip, module, continueDownloadNextClip);
                             }
                         });
                         break;
@@ -119,11 +131,7 @@
         }
 
         function downloadModuleClips(module) {
-            _.forEach(module.clips, function (clip, clipIndex) {
-                $timeout(function () {
-                    vm.downloadClip(clip, module);
-                }, clipIndex * 2 + '000');
-            });
+            return vm.downloadClip(module.clips[0], module, true);
         }
     }
 })();
