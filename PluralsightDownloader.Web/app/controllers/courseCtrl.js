@@ -130,7 +130,11 @@
             });
         }
 
-        function downloadModuleClips(module) {
+        function downloadModuleClips(module, $event) {
+            if ($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+            }
             return vm.downloadClip(module.clips[0], module, true);
         }
     }

@@ -16,7 +16,7 @@ namespace PluralsightDownloader.Web
                         "~/Scripts/angular-lodash.js"
                         )
                         .Include(
-                // AngularJs jQuery plugins/Custom providers
+                        // AngularJs jQuery plugins/Custom providers
                         "~/Scripts/angular-ui/ui-bootstrap-tpls.js",
                         "~/Scripts/angular-signalr-hub.js",
                         "~/Scripts/toaster.js"

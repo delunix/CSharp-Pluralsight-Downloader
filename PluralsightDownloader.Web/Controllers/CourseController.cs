@@ -80,7 +80,6 @@ namespace PluralsightDownloader.Web.Controllers
                         // 422 means Invalid user name or password.
                         return
                             ResponseMessage(Request.CreateResponse((HttpStatusCode)422, "Invalid user name or password"));
-                        break;
                 }
             }
             catch (Exception exception)

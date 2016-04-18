@@ -4,7 +4,7 @@
 
     /*
      * AngularJS Toaster
-     * Version: 0.4.15
+     * Version: 0.4.18
      *
      * Copyright 2013-2015 Jiri Kavulak.
      * All Rights Reserved.
@@ -29,7 +29,8 @@
              'close-button': { 'toast-error': true, 'toast-info': false }
              */
             'close-button': false,
-            'newest-on-top': true,
+            'close-html': '<button class="toast-close-button" type="button">&times;</button>',
+            'newest-on-top': true, 
             //'fade-in': 1000,            // done in css
             //'on-fade-in': undefined,    // not implemented
             //'fade-out': 1000,           // done in css
@@ -69,8 +70,10 @@
                             bodyOutputType: params.bodyOutputType,
                             clickHandler: params.clickHandler,
                             showCloseButton: params.showCloseButton,
+                            closeHtml: params.closeHtml,
                             uid: params.toastId,
-                            onHideCallback: params.onHideCallback
+                            onHideCallback: params.onHideCallback,
+                            directiveData: params.directiveData
                         };
                         toastId = params.toastId;
                         toasterId = params.toasterId;
@@ -112,8 +115,7 @@
                                 toasterId,
                                 showCloseButton,
                                 toastId,
-                                onHideCallback
-                                );
+                                onHideCallback);
                         } else { // 'title' is actually an object with options
                             this.pop(angular.extend(title, { type: toasterType }));
                         }
@@ -133,8 +135,7 @@
                                     for (var i = 0, len = newToastEventSubscribers.length; i < len; i++) {
                                         newToastEventSubscribers[i](event, toasterId, toastId);
                                     }
-                                }
-                                );
+                                });
                         }
 
                         if (!deregisterClearToasts) {
@@ -143,8 +144,7 @@
                                     for (var i = 0, len = clearToastsEventSubscribers.length; i < len; i++) {
                                         clearToastsEventSubscribers[i](event, toasterId, toastId);
                                     }
-                                }
-                                );
+                                });
                         }
                     },
 
@@ -186,16 +186,29 @@
                 };
             }]
         )
-        .directive('directiveTemplate', ['$compile', function ($compile) {
+        .directive('directiveTemplate', ['$compile', '$injector', function($compile, $injector) {
             return {
                 restrict: 'A',
                 scope: {
-                    directiveName: '@directiveName'
+                    directiveName: '@directiveName',
+                    directiveData: '@directiveData'
                 },
-                replace: true,
+                replace: true,   
                 link: function (scope, elm, attrs) {
                     scope.$watch('directiveName', function (directiveName) {
+                        if (angular.isUndefined(directiveName) || directiveName.length <= 0)
+                            throw new Error('A valid directive name must be provided via the toast body argument when using bodyOutputType: directive');
+                        
+                        var directiveExists = $injector.has(attrs.$normalize(directiveName) + 'Directive');
+                        
+                        if (!directiveExists)
+                            throw new Error(directiveName + ' could not be found.');
+                        
+                        if (scope.directiveData)
+                            scope.directiveData = angular.fromJson(scope.directiveData);
+                        
                         var template = $compile('<div ' + directiveName + '></div>')(scope);
+
                         elm.append(template);
                     });
                 }
@@ -222,6 +235,7 @@
                             message: mergedConfig['message-class'],
                             tap: mergedConfig['tap-to-dismiss'],
                             closeButton: mergedConfig['close-button'],
+                            closeHtml: mergedConfig['close-html'],
                             animation: mergedConfig['animation-class'],
                             mouseoverTimer: mergedConfig['mouseover-timer-stop']
                         };
@@ -301,7 +315,11 @@
                                 // if an option was not set, default to false.
                                 toast.showCloseButton = false;
                             }
-
+                            
+                            if (toast.showCloseButton) {
+                                toast.closeHtml = $sce.trustAsHtml(toast.closeHtml || scope.config.closeHtml);
+                            }
+                             
                             // Set the toast.bodyOutputType to the default if it isn't set
                             toast.bodyOutputType = toast.bodyOutputType || mergedConfig['body-output-type'];
                             switch (toast.bodyOutputType) {
@@ -323,6 +341,7 @@
                             }
 
                             scope.configureTimer(toast);
+                            
                             if (mergedConfig['newest-on-top'] === true) {
                                 scope.toasters.unshift(toast);
                                 if (mergedConfig['limit'] > 0 && scope.toasters.length > mergedConfig['limit']) {
@@ -348,15 +367,15 @@
 
                         function removeToast(toastIndex) {
                             var toast = scope.toasters[toastIndex];
-                            if (toast) {
-                                if (toast.timeoutPromise) {
-                                    $interval.cancel(toast.timeoutPromise);
-                                }
-                                scope.toasters.splice(toastIndex, 1);
+                            
+                            // toast is always defined since the index always has a match
+                            if (toast.timeoutPromise) {
+                                $interval.cancel(toast.timeoutPromise);
+                            }
+                            scope.toasters.splice(toastIndex, 1);
 
-                                if (angular.isFunction(toast.onHideCallback)) {
-                                    toast.onHideCallback();
-                                }
+                            if (angular.isFunction(toast.onHideCallback)) {
+                                toast.onHideCallback();
                             }
                         }
 
@@ -440,19 +459,19 @@
                                 }
                             };
                         }],
-                    template:
-                        '<div id="toast-container" ng-class="[config.position, config.animation]">' +
-                            '<div ng-repeat="toaster in toasters" class="toast" ng-class="toaster.type" ng-click="click(toaster)" ng-mouseover="stopTimer(toaster)" ng-mouseout="restartTimer(toaster)">' +
-                                '<button type="button" class="toast-close-button" ng-show="toaster.showCloseButton" ng-click="click(toaster, true)">&times;</button>' +
-                                '<div ng-class="config.title">{{toaster.title}}</div>' +
-                                '<div ng-class="config.message" ng-switch on="toaster.bodyOutputType">' +
-                                    '<div ng-switch-when="trustedHtml" ng-bind-html="toaster.html"></div>' +
-                                    '<div ng-switch-when="template"><div ng-include="toaster.bodyTemplate"></div></div>' +
+                    template: 
+                        '<div id="toast-container" ng-class="[config.position, config.animation]">' + 
+                            '<div ng-repeat="toaster in toasters" class="toast" ng-class="toaster.type" ng-click="click(toaster)" ng-mouseover="stopTimer(toaster)" ng-mouseout="restartTimer(toaster)">' + 
+                                '<div ng-if="toaster.showCloseButton" ng-click="click(toaster, true)" ng-bind-html="toaster.closeHtml"></div>' + 
+                                '<div ng-class="config.title">{{toaster.title}}</div>' + 
+                                '<div ng-class="config.message" ng-switch on="toaster.bodyOutputType">' + 
+                                    '<div ng-switch-when="trustedHtml" ng-bind-html="toaster.html"></div>' + 
+                                    '<div ng-switch-when="template"><div ng-include="toaster.bodyTemplate"></div></div>' + 
                                     '<div ng-switch-when="templateWithData"><div ng-include="toaster.bodyTemplate"></div></div>' +
-                                    '<div ng-switch-when="directive"><div directive-template directive-name="{{toaster.html}}"></div></div>' +
-                                    '<div ng-switch-default >{{toaster.body}}</div>' +
-                                '</div>' +
-                            '</div>' +
+                                    '<div ng-switch-when="directive"><div directive-template directive-name="{{toaster.html}}" directive-data="{{toaster.directiveData}}"></div></div>' + 
+                                    '<div ng-switch-default >{{toaster.body}}</div>' + 
+                                '</div>' + 
+                            '</div>' + 
                         '</div>'
                 };
             }]

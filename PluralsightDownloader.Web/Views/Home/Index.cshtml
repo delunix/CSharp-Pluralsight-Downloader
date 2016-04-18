@@ -16,14 +16,14 @@
         <div class="col-md-12 courses" style="margin-top:20px;" ng-show="vm.course" ng-cloak>
             <table class="table">
                 <tbody>
-                <tr>
-                    <td class="bold">Title: </td>
-                    <td ng-bind="vm.course.title"></td>
-                </tr>
+                    <tr>
+                        <td class="bold">Title: </td>
+                        <td ng-bind="vm.course.title"></td>
+                    </tr>
                     <tr>
                         <td class="bold">Description: </td>
                         <td ng-bind="vm.course.description"></td>
-                    </tr>                    
+                    </tr>
                     <tr>
                         <td class="bold">Average Rating: </td>
                         <td ng-bind="vm.course.courseRating.averageRating"></td>
@@ -48,14 +48,14 @@
             </table>
 
             <h2>Table of contents:</h2>
-            <accordion close-others="false">
-                <accordion-group ng-repeat="module in vm.course.courseModules" heading="{{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}">
-                    <accordion-heading>
+            <uib-accordion close-others="false">
+                <uib-accordion-group ng-repeat="module in vm.course.courseModules" heading="{{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}">
+                    <uib-accordion-heading>
                         {{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}
                         <div class="pull-right btn-group btn-group-xs">
-                            <button class="btn btn-success btn-xs" ng-click="vm.downloadModuleClips(module)">Download all module clips</button>
+                            <button class="btn btn-success btn-xs" ng-click="vm.downloadModuleClips(module, $event)">Download all module clips</button>
                         </div>
-                    </accordion-heading>
+                    </uib-accordion-heading>
                     <p>{{module.description}}</p>
                     <table class="table table-bordered table-condensed">
                         <thead>
@@ -85,9 +85,9 @@
                                             <i class="glyphicon glyphicon-download"></i> Download
                                         </button>
                                     </div>
-                                    <progressbar value="clip.progress.percentComplete * 100" class="progress-striped">
+                                    <uib-progressbar value="clip.progress.percentComplete * 100" class="progress-striped">
                                         <b>{{clip.progress.percentComplete * 100 | number:0}}%</b>
-                                    </progressbar>
+                                    </uib-progressbar>
                                 </td>
                                 <td valign="middle" class="text-center">
                                     <div class="radio">
@@ -106,8 +106,8 @@
                             </tr>
                         </tbody>
                     </table>
-                </accordion-group>
-            </accordion>
+                </uib-accordion-group>
+            </uib-accordion>
         </div>
     </div>
 </div>
