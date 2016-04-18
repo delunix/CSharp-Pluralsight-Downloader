@@ -4,15 +4,21 @@
     angular.module('app')
     .controller('courseCtrl', courseCtrl);
 
-    courseCtrl.$inject = ['$rootScope', 'coursesService', '_', 'Hub', '$timeout', 'toaster'];
+    courseCtrl.$inject = ['$scope', '$rootScope', 'coursesService', '_', 'Hub', '$timeout', 'toaster'];
 
-    function courseCtrl($rootScope, coursesService, _, Hub, $timeout, toaster) {
+    function courseCtrl($scope, $rootScope, coursesService, _, Hub, $timeout, toaster) {
         var vm = this;
         vm.courseName = '';
-        vm.loadCourseData = loadCourseData;
         vm.course = undefined;
+        vm.clipsToDownloadQueue = [];
+        vm.currentlyDownloading = false;
+        vm.toggleModuleAccordion = toggleModuleAccordion;
+        vm.loadCourseData = loadCourseData;
+        vm.addClipToDownloadList = addClipToDownloadList;
+        vm.addModuleToDownloadList = addModuleToDownloadList;
+        vm.addCourseToDownloadList = addCourseToDownloadList;
+        vm.processClipsQueue = processClipsQueue;
         vm.downloadClip = downloadClip;
-        vm.downloadModuleClips = downloadModuleClips;
 
         activate();
         /////////////////////////////////////
@@ -34,6 +40,18 @@
                     }
                 }
             });
+
+            // register events' listeners
+            $scope.$on('clipsToDownloadQueue.push', function () {
+                vm.processClipsQueue();
+            });
+            $scope.$on('clipsToDownloadQueue.finish', function () {
+                vm.processClipsQueue();
+            });
+        }
+
+        function toggleModuleAccordion(module) {
+            module.isAccordionOpen = !module.isAccordionOpen;
         }
 
         function loadCourseData() {
@@ -57,7 +75,47 @@
             });
         }
 
-        function downloadClip(clip, module, continueDownloadNextClip) {
+        function addClipToDownloadList(clip, module) {
+            var clipFound = _.find(vm.clipsToDownloadQueue, function (item) {
+                return item.clip.name === clip.name;
+            });
+            if (!clipFound) {
+                vm.clipsToDownloadQueue.push({ clip: clip, module: module });
+                clip.progress.isDownloading = true; // disable download button
+                // fire an event notifying that a clip has been added to downloads queue so that the controller starts to download it.
+                $scope.$emit("clipsToDownloadQueue.push");
+            }
+        }
+
+        function addModuleToDownloadList(module, $event) {
+            _.forEach(module.clips, function (clip) {
+                vm.addClipToDownloadList(clip, module);
+            });
+            if ($event && module.isAccordionOpen) {
+                $event.preventDefault();
+                $event.stopPropagation();
+            }
+        }
+
+        function addCourseToDownloadList() {
+            _.forEach(vm.course.courseModules, function (module) {
+                module.isAccordionOpen = true;
+                vm.addModuleToDownloadList(module);
+            });
+        }
+
+        function processClipsQueue() {
+            // make sure that controller is NOT downloading any clips in the mean time.
+            if (vm.clipsToDownloadQueue.length > 0 && !vm.currentlyDownloading) {
+                var nextItemToDownload = vm.clipsToDownloadQueue.shift();
+                vm.currentlyDownloading = true;
+                $timeout(function () {
+                    return vm.downloadClip(nextItemToDownload.clip, nextItemToDownload.module);
+                }, '3000'); // 3 seconds delay to avoid blocking account.
+            }
+        }
+
+        function downloadClip(clip, module) {
             clip.progress.isDownloading = true;
             toaster.pop({
                 type: 'info',
@@ -80,19 +138,7 @@
                 $timeout(function () {
                     clip.progress.hasBeenDownloaded = true;
                     clip.progress.isDownloading = false;
-                }, 0);
-
-                // should continue downloading the next clips ?
-                if (continueDownloadNextClip) {
-                    // if yest, // check if there is "next" clip regarding the "current" module
-                    var nextClipModule = _.get(vm.course, '.courseModules[' + progress.extra.moduleIndex + ']');
-                    var nextClipToDownload = nextClipModule.clips[++progress.extra.clipIndex];
-                    if (nextClipToDownload) {
-                        $timeout(function () {
-                            return vm.downloadClip(nextClipToDownload, nextClipModule, continueDownloadNextClip);
-                        }, '3000'); // 3 seconds delay to avoid blocking account.
-                    }
-                }
+                }, 500); // sometimes, progress callback comes after success callbak.
             }, function (errorResponse) {
                 switch (errorResponse.status) {
                     case 429:
@@ -105,7 +151,7 @@
                             timeout: downloadDelaySec + '000',
                             progressBar: true,
                             onHideCallback: function () {
-                                vm.downloadClip(clip, module, continueDownloadNextClip);
+                                vm.addClipToDownloadList(clip);
                             }
                         });
                         break;
@@ -127,15 +173,12 @@
                 }
                 clip.progress.isDownloading = false;
                 clip.progress.hasBeenDownloaded = false;
+            }).finally(function () {
+                vm.currentlyDownloading = false;
+                // fire an event notifying that a clip has been saved/processed.
+                // Why?, so that the controllers knows that it should continue processing next clips in the downloads queue.
+                $scope.$emit("clipsToDownloadQueue.finish");
             });
-        }
-
-        function downloadModuleClips(module, $event) {
-            if ($event) {
-                $event.preventDefault();
-                $event.stopPropagation();
-            }
-            return vm.downloadClip(module.clips[0], module, true);
         }
     }
 })();
