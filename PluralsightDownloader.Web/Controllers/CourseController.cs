@@ -79,7 +79,7 @@ namespace PluralsightDownloader.Web.Controllers
                     case 422:
                         // 422 means Invalid user name or password.
                         return
-                            ResponseMessage(Request.CreateResponse((HttpStatusCode)422, "Invalid user name or password"));
+                            ResponseMessage(Request.CreateResponse((HttpStatusCode)422, "Invalid user name or password."));
                 }
             }
             catch (Exception exception)
@@ -235,7 +235,7 @@ namespace PluralsightDownloader.Web.Controllers
         private void SetupAuthenticationCookie()
         {
             var authCookie = LoginToPluralSight();
-            if (authCookie.Contains("signin-errors"))
+            if (string.IsNullOrWhiteSpace(authCookie) || authCookie.Contains("signin-errors"))
             {
                 // ToDO: better handling of errors returned by pluralsight server.
                 var resp = new HttpResponseMessage((HttpStatusCode)422)
