@@ -19,6 +19,7 @@
         vm.addCourseToDownloadList = addCourseToDownloadList;
         vm.processClipsQueue = processClipsQueue;
         vm.downloadClip = downloadClip;
+        vm.delayBetweenClips = 120; // delay in seconds
 
         activate();
         /////////////////////////////////////
@@ -111,7 +112,7 @@
                 vm.currentlyDownloading = true;
                 $timeout(function () {
                     return vm.downloadClip(nextItemToDownload.clip, nextItemToDownload.module);
-                }, '3000'); // 3 seconds delay to avoid blocking account.
+                }, vm.delayBetweenClips * 1000); // 120 seconds delay to avoid blocking account.
             }
         }
 
