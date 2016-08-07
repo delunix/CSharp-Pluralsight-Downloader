@@ -196,6 +196,7 @@
     <Compile Include="ThrottledStream.cs" />
     <Compile Include="ViewModel\ClipToSave.cs" />
     <Compile Include="ViewModel\ExerciseFiles.cs" />
+    <Compile Include="ViewModel\Transcript.cs" />
     <Compile Include="ViewModel\ProgressArgs.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -208,6 +209,9 @@
     <Compile Include="ViewModel\Course.cs" />
     <Compile Include="ViewModel\CourseModule.cs" />
     <Compile Include="ViewModel\CourseRating.cs" />
+    <Compile Include="ViewModel\TranscriptClip.cs" />
+    <Compile Include="ViewModel\TranscriptModule.cs" />
+    <Compile Include="ViewModel\TranscriptSegment.cs" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Scripts\angular-animate.js" />
     <Content Include="Scripts\angular-animate.min.js" />
