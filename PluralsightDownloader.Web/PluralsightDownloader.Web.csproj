@@ -1042,9 +1042,6 @@
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
     <Content Include="Scripts\angular-block-ui.js" />
     <Content Include="Scripts\angular-block-ui.min.js" />
-    <Content Include="ExampleJson\Course.json" />
-    <Content Include="ExampleJson\ClipUrlResponse.json" />
-    <Content Include="ExampleJson\ClipUrlRequest.json" />
     <Content Include="Scripts\errors.json" />
     <Content Include="Scripts\angular.min.js.map" />
     <Content Include="Scripts\angular-touch.min.js.map" />
@@ -1085,7 +1082,6 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="ExampleJson\Transcript.json" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

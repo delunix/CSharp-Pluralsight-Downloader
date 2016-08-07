@@ -109,7 +109,7 @@ namespace PluralsightDownloader.Web.Controllers
             {
                 byte[] buffer = new byte[1024];
                 totalBytes = Int32.Parse(client.ResponseHeaders[HttpResponseHeader.ContentLength]);
-                stream.MaximumBytesPerSecond = GetClipMaxDownloadSpeed(clipToSave.Duration, totalBytes);
+                stream.MaximumBytesPerSecond = GetClipMaxDownloadSpeed(clipToSave.DurationSeconds, totalBytes);
 
                 using (var fileStream = File.OpenWrite(videoSaveLocation))
                 {
@@ -172,13 +172,8 @@ namespace PluralsightDownloader.Web.Controllers
             });
         }
 
-        private long GetClipMaxDownloadSpeed(String duration, long totalBytes)
+        private long GetClipMaxDownloadSpeed(long seconds, long totalBytes)
         {
-            var times = duration.Split(':');
-            var seconds = int.Parse(times[0])*3600 //hrs
-                          + int.Parse(times[1])*60 //mins
-                          + int.Parse(times[2]); //seconds
-
             var maxSpeed = totalBytes/seconds;
             return maxSpeed*Constants.CLIP_DOWNLOAD_SPEED_MULTIPLIER;
         }
