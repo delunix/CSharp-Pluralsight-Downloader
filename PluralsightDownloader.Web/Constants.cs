@@ -10,6 +10,7 @@ namespace PluralsightDownloader.Web
         public static readonly string COURSE_CONTENT_DATA_URL = ConfigurationManager.AppSettings["COURSE_CONTENT_DATA_URL"];
         public static readonly string COURSE_CLIP_DATA_URL = ConfigurationManager.AppSettings["COURSE_CLIP_DATA_URL"];
         public static readonly string COURSE_EXERCISE_FILES_URL = ConfigurationManager.AppSettings["COURSE_EXERCISE_FILES_URL"];
+        public static readonly string COURSE_TRANSCRIPT_URL = ConfigurationManager.AppSettings["COURSE_TRANSCRIPT_URL"];
         public static readonly string COURSE_RETRIEVE_URL = ConfigurationManager.AppSettings["COURSE_RETRIEVE_URL"];
         public static readonly string USER_NAME = ConfigurationManager.AppSettings["USER_NAME"];
         public static readonly string PASSWORD = ConfigurationManager.AppSettings["PASSWORD"];

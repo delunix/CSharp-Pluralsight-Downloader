@@ -6,6 +6,7 @@ using PluralsightDownloader.Web.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -38,6 +39,18 @@ namespace PluralsightDownloader.Web.Controllers
                 SetupAuthenticationCookie(webClient);
                 json = webClient.DownloadString(string.Format(Constants.COURSE_EXERCISE_FILES_URL, coursename));
                 course.ExerciseFiles = JsonConvert.DeserializeObject<ExerciseFiles>(json);
+
+                json = webClient.DownloadString(string.Format(Constants.COURSE_TRANSCRIPT_URL, coursename));
+                var transcript = JsonConvert.DeserializeObject<Transcript>(json);
+
+                foreach (CourseModule module in course.CourseModules)
+                {
+                    var transMod = transcript.Modules.Single(x => x.Title == module.Title);
+                    foreach (Clip clip in module.Clips)
+                    {
+                        clip.TranscriptClip = transMod.Clips.Single(x => x.Title == clip.Title);
+                    }
+                }
             }
 
             return Ok(course);
@@ -100,7 +113,8 @@ namespace PluralsightDownloader.Web.Controllers
             // 3- download the video and report progress back.
             int receivedBytes = 0;
             long totalBytes = 0;
-            var videoFileName = ((clipToSave.ClipIndex + 1).ToString("D2") + " - " + clipToSave.Title + ".mp4").ToValidFileName();
+            var videoFileName =
+                ((clipToSave.ClipIndex + 1).ToString("D2") + " - " + clipToSave.Title + ".mp4").ToValidFileName();
             var videoSaveLocation = videoSaveDirectory.FullName + "\\raw-" + videoFileName;
 
             using (var client = new WebClient())
@@ -142,8 +156,8 @@ namespace PluralsightDownloader.Web.Controllers
             // 4- save the video file.
 
             // 5- change the aspect ratio so it plays back nicely
-            var inputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\raw-" + videoFileName};
-            var outputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\" + videoFileName};
+            var inputFile = new MediaFile {Filename = videoSaveDirectory.FullName + "\\raw-" + videoFileName};
+            var outputFile = new MediaFile {Filename = videoSaveDirectory.FullName + "\\" + videoFileName};
 
             var conversionOptions = new ConversionOptions
             {
@@ -160,6 +174,11 @@ namespace PluralsightDownloader.Web.Controllers
                 engine.Convert(inputFile, outputFile, conversionOptions);
             }
             File.Delete(inputFile.Filename);
+
+            //6- Create srt files
+            var srtFilename = outputFile.Filename.Substring(0, outputFile.Filename.Length - 4) + ".srt";
+            var srtString = clipToSave.TranscriptClip.GetSrtString(clipToSave.DurationSeconds);
+            File.WriteAllText(srtFilename, srtString);
 
             return Ok(new ProgressArgs()
             {
@@ -182,9 +201,11 @@ namespace PluralsightDownloader.Web.Controllers
         private DirectoryInfo SetUpVideoFolderStructure(string courseTitle, string moduleTitle, string clipTitle)
         {
             Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH);
-            Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " + courseTitle.ToValidFileName());
+            Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " +
+                                      courseTitle.ToValidFileName());
             return
-                Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " + courseTitle.ToValidFileName() + "\\" +
+                Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " +
+                                          courseTitle.ToValidFileName() + "\\" +
                                           moduleTitle.ToValidFileName());
         }
 

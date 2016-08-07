@@ -11,6 +11,8 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public List<object> Transcripts { get; set; }
 
+        public TranscriptClip TranscriptClip { get; set; }
+
         public int ClipIndex { get; set; }
 
         public string Title { get; set; }
