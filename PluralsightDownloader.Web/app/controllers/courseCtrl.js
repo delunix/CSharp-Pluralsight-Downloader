@@ -19,7 +19,6 @@
         vm.addCourseToDownloadList = addCourseToDownloadList;
         vm.processClipsQueue = processClipsQueue;
         vm.downloadClip = downloadClip;
-        vm.delayBetweenClips = 120; // delay in seconds
 
         activate();
         /////////////////////////////////////
@@ -110,9 +109,7 @@
             if (vm.clipsToDownloadQueue.length > 0 && !vm.currentlyDownloading) {
                 var nextItemToDownload = vm.clipsToDownloadQueue.shift();
                 vm.currentlyDownloading = true;
-                $timeout(function () {
-                    return vm.downloadClip(nextItemToDownload.clip, nextItemToDownload.module);
-                }, vm.delayBetweenClips * 1000); // 120 seconds delay to avoid blocking account.
+                vm.downloadClip(nextItemToDownload.clip, nextItemToDownload.module);
             }
         }
 
