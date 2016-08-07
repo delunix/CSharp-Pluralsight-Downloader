@@ -4,9 +4,9 @@
     {
         public string Id { get; set; }
 
-        public int TotalBytes { get; set; }
+        public long TotalBytes { get; set; }
 
-        public int BytesReceived { get; set; }
+        public long BytesReceived { get; set; }
 
         public float PercentComplete { get { return (float)BytesReceived / TotalBytes; } }
 

@@ -1,0 +1,64 @@
+﻿{
+    "urls": [
+        {
+            "rank": 1,
+            "cdn": "cachefly",
+            "url": "http://vid.pluralsight.com/expiretime=1470501726/72347ab05782198ed629a45ddb1a75fe/clip-videos/paul-cheney/hands-on-responsive-design-css-preprocessor-m0/hands-on-responsive-design-css-preprocessor-m0-01/1280x720mp4/20160314194123.mp4"
+        },
+        {
+            "rank": 2,
+            "cdn": "edgecast",
+            "url": "http://vid20.pluralsight.com/clip-videos/paul-cheney/hands-on-responsive-design-css-preprocessor-m0/hands-on-responsive-design-css-preprocessor-m0-01/1280x720mp4/20160314194123.mp4?gyGk1QHdfuj2K0PhX4dUMCyb9p7kJB4rd777mCCKnynRPSSVCiL-R2202D8igYhA"
+        }
+    ],
+    "captions": [
+        {
+            "displayTimeOffset": 0,
+            "text": "Hello. My name is Paul Cheney, and welcome to my course on Hands-on Response and Design Using a CSS Preprocessor."
+        },
+        {
+            "displayTimeOffset": 13,
+            "text": "I teach digital media at UVU, and in my spare time I build courses for Pluralsight."
+        },
+        {
+            "displayTimeOffset": 18,
+            "text": "A CSS preprocessor allows you to use many programming functions to build your CSS that you may never have thought possible."
+        },
+        {
+            "displayTimeOffset": 25,
+            "text": "In this course, we will show you how you create many separate files for your CSS, and then automatically"
+        },
+        {
+            "displayTimeOffset": 31,
+            "text": "combine and minify them for delivery to the web. We will also show you the power of using variables,"
+        },
+        {
+            "displayTimeOffset": 37,
+            "text": "nesting your CSS, and how to use mix ins to automate code creation."
+        },
+        {
+            "displayTimeOffset": 43,
+            "text": "We will also leverage the power of inheritance to create dry code, as well as explore math functions, and control directives."
+        },
+        {
+            "displayTimeOffset": 51,
+            "text": "This is hands-on course, so you'll be working right"
+        },
+        {
+            "displayTimeOffset": 54,
+            "text": "alongside me to build a responsive, mobile-first website for Aspen Dental."
+        },
+        {
+            "displayTimeOffset": 59,
+            "text": "Even if you don't like the dentist, you're going to love the final product."
+        },
+        {
+            "displayTimeOffset": 64,
+            "text": "Before beginning the course you should be familiar with HTML5, CSS3, and media queries."
+        },
+        {
+            "displayTimeOffset": 70,
+            "text": "I hope you'll join me, and give me a chance to convince you that using a CSS preprocessor is the way to go."
+        }
+    ]
+}
