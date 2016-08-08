@@ -159,22 +159,23 @@ namespace PluralsightDownloader.Web.Controllers
             var inputFile = new MediaFile {Filename = videoSaveDirectory.FullName + "\\raw-" + videoFileName};
             var outputFile = new MediaFile {Filename = videoSaveDirectory.FullName + "\\" + videoFileName};
 
-            var conversionOptions = new ConversionOptions
-            {
-                VideoAspectRatio = VideoAspectRatio.R16_9,
-                VideoSize = VideoSize.Hd720,
-                AudioSampleRate = AudioSampleRate.Hz44100,
-                VideoBitRate = 96,
-                VideoFps = 30,
-                BaselineProfile = true
-            };
-
-            using (var engine = new Engine())
-            {
-                engine.Convert(inputFile, outputFile, conversionOptions);
-            }
-            File.Delete(inputFile.Filename);
-
+//            var conversionOptions = new ConversionOptions
+//            {
+//                VideoAspectRatio = VideoAspectRatio.R16_9,
+//                VideoSize = VideoSize.Hd720,
+//                AudioSampleRate = AudioSampleRate.Hz44100,
+//                VideoBitRate = 96,
+//                VideoFps = 30,
+//                BaselineProfile = true
+//            };
+//
+//            using (var engine = new Engine())
+//            {
+//                engine.Convert(inputFile, outputFile, conversionOptions);
+//            }
+//            File.Delete(inputFile.Filename);
+            File.Move(inputFile.Filename, outputFile.Filename);
+            
             //6- Create srt files
             var srtFilename = outputFile.Filename.Substring(0, outputFile.Filename.Length - 4) + ".srt";
             var srtString = clipToSave.TranscriptClip.GetSrtString(clipToSave.DurationSeconds);
