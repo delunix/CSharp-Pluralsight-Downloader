@@ -55,8 +55,8 @@ namespace PluralsightDownloader.Web.ViewModel
             for (int i = 0; i < Segments.Length; i++)
             {
                 var offSetTimeString = i + 1 < Segments.Length
-                    ? Segments[i + 1].GetOffsetDisplayTimeString(1)
-                    : Segments[i].GetOffsetDisplayTimeString(1, clipSeconds);
+                    ? Segments[i + 1].GetOffsetDisplayTimeString(0)
+                    : Segments[i].GetOffsetDisplayTimeString(0, clipSeconds);
 
                 var text = Segments[i].Text;
                 srt.Append(GetLineString((i + 1).ToString(), Segments[i].DisplayTimeString, offSetTimeString, text));
