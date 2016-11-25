@@ -11,6 +11,8 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public List<object> Transcripts { get; set; }
 
+        public TranscriptClip TranscriptClip { get; set; }
+
         public int ClipIndex { get; set; }
 
         public string Title { get; set; }
@@ -36,5 +38,16 @@ namespace PluralsightDownloader.Web.ViewModel
         public string HasBeenViewedAltText { get; set; }
 
         public ProgressArgs Progress { get; set; }
+
+        public long DurationSeconds
+        {
+            get
+            {
+                var times = Duration.Split(':');
+                return long.Parse(times[0]) * 3600 //hrs
+                              + int.Parse(times[1]) * 60 //mins
+                              + int.Parse(times[2]); //seconds
+            }
+        }
     }
 }

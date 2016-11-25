@@ -1,0 +1,34 @@
+﻿{
+    "title": "Hands on Responsive Design Using a CSS Preprocessor",
+    "level": "Intermediate",
+    "duration": "02:00:13",
+    "releaseDate": "2016-03-14T20:18:34.338Z",
+    "name": "hands-on-responsive-design-css-preprocessor",
+    "authors": [
+        {
+            "handle": "paul-cheney",
+            "firstName": "Paul",
+            "lastName": "Cheney"
+        }
+    ],
+    "hasTranscript": true,
+    "courseRating": {
+        "currentUsersRating": 0,
+        "averageRating": 4.4,
+        "rating": 4.4,
+        "canRateThisCourse": false,
+        "courseName": "hands-on-responsive-design-css-preprocessor",
+        "numberOfRaters": 23,
+        "hasUserRatedCourse": false
+    },
+    "isRetired": false,
+    "shortDescription": "Build a mobile first, responsive website using the power of a CSS preprocessor so you can use variables, functions, calculations, shorthand, and minification in your web design workflow.",
+    "description": "CSS is very basic and tedious to write by hand. However, by using a CSS preprocessor, we can introduce variables, functions, calculations, shorthand, minification, and other cool stuff all while keeping our source files clean and readable. The power of using a CSS preprocessor for doing responsive design should not be underestimated.",
+    "isBookmarked": false,
+    "userMaySaveCourse": false,
+    "replacementCourseName": "",
+    "retiredReason": "",
+    "replacementCourseTitle": "",
+    "isValid": true,
+    "isUserAuthorizedForTranscript": false
+}

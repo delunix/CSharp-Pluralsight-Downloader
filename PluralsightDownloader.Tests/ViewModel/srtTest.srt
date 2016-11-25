@@ -1,0 +1,70 @@
+
+1
+00:00:00,000 --> 00:00:12,000
+Hello. My name is Paul Cheney, and
+welcome to my course on Hands-on Response
+and Design Using a CSS Preprocessor.
+
+2
+00:00:13,000 --> 00:00:17,000
+I teach digital media at UVU, and in my
+spare time I build courses for
+Pluralsight.
+
+3
+00:00:18,000 --> 00:00:24,000
+A CSS preprocessor allows you to use many
+programming functions to build your CSS
+that you may never have thought possible.
+
+4
+00:00:25,000 --> 00:00:30,000
+In this course, we will show you how you
+create many separate files for your CSS,
+and then automatically
+
+5
+00:00:31,000 --> 00:00:36,000
+combine and minify them for delivery to
+the web. We will also show you the power
+of using variables,
+
+6
+00:00:37,000 --> 00:00:42,000
+nesting your CSS, and how to use mix ins
+to automate code creation.
+
+7
+00:00:43,000 --> 00:00:50,000
+We will also leverage the power of
+inheritance to create dry code, as well
+as explore math functions, and control
+directives.
+
+8
+00:00:51,000 --> 00:00:53,000
+This is hands-on course, so you'll be
+working right
+
+9
+00:00:54,000 --> 00:00:58,000
+alongside me to build a responsive,
+mobile-first website for Aspen Dental.
+
+10
+00:00:59,000 --> 00:01:03,000
+Even if you don't like the dentist,
+you're going to love the final product.
+
+11
+00:01:04,000 --> 00:01:09,000
+Before beginning the course you should be
+familiar with HTML5, CSS3, and media
+queries.
+
+12
+00:01:10,000 --> 00:01:19,000
+I hope you'll join me, and give me a
+chance to convince you that using a CSS
+preprocessor is the way to go.
+
