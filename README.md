@@ -21,3 +21,7 @@ Things to note:
  - The project may be not fully *well* *right* *configurable*, but it does the job very ***well*** and ***enough***.
  - The project is meant to run locally for simplicty(instead of save videos on the server then save them again on the user PC), debugging and extendability.
  - Please please, don't forget to replace the ***USER_NAME*** and ***PASSWORD*** located in ***Web.config*** with your subscription values, as well as ***DOWNLOAD_FOLDER_PATH*** with your desired folder to download in.
+ 
+Recent Updates:
+-----------------------------
+- Now you can download course subtitles along with course videos. To enable that feature, set ***SUBTITLES*** in ***Web.config*** to `true` (thanks to [@brunnels](https://github.com/brunnels)). 

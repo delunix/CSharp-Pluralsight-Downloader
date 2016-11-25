@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using MediaToolkit.Model;
+using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using PluralsightDownloader.Web.Extensions;
 using PluralsightDownloader.Web.Hubs;
@@ -13,9 +14,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using MediaToolkit;
-using MediaToolkit.Model;
-using MediaToolkit.Options;
 
 namespace PluralsightDownloader.Web.Controllers
 {
@@ -72,7 +70,7 @@ namespace PluralsightDownloader.Web.Controllers
                     var response = webException.Response as HttpWebResponse;
                     if (response != null)
                     {
-                        switch ((int) response.StatusCode)
+                        switch ((int)response.StatusCode)
                         {
                             // if the request is unauthorized or bad, try to set up authentication cookie again..
                             case 401:
@@ -83,7 +81,7 @@ namespace PluralsightDownloader.Web.Controllers
                             case 429:
                                 // 429 means that that we are sending too many requests.
                                 // So we need to wait a little before sending next request.
-                                return ResponseMessage(Request.CreateResponse((HttpStatusCode) 429,
+                                return ResponseMessage(Request.CreateResponse((HttpStatusCode)429,
                                     "Too many requests in a short time. Please try again after some time."));
                         }
                     }
@@ -91,12 +89,12 @@ namespace PluralsightDownloader.Web.Controllers
             }
             catch (HttpResponseException responseException)
             {
-                switch ((int) responseException.Response.StatusCode)
+                switch ((int)responseException.Response.StatusCode)
                 {
                     case 422:
                         // 422 means Invalid user name or password.
                         return
-                            ResponseMessage(Request.CreateResponse((HttpStatusCode) 422,
+                            ResponseMessage(Request.CreateResponse((HttpStatusCode)422,
                                 "Invalid user name or password."));
                 }
             }
@@ -144,7 +142,7 @@ namespace PluralsightDownloader.Web.Controllers
                             FileName = videoFileName,
                             TotalBytes = totalBytes,
                             IsDownloading = true,
-                            Extra = new {clipToSave.ModuleIndex, clipToSave.ClipIndex}
+                            Extra = new { clipToSave.ModuleIndex, clipToSave.ClipIndex }
                         };
                         fileStream.Write(buffer, 0, bytesRead);
                         var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
@@ -154,32 +152,18 @@ namespace PluralsightDownloader.Web.Controllers
             }
 
             // 4- save the video file.
+            var inputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\raw-" + videoFileName };
+            var outputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\" + videoFileName };
 
-            // 5- change the aspect ratio so it plays back nicely
-            var inputFile = new MediaFile {Filename = videoSaveDirectory.FullName + "\\raw-" + videoFileName};
-            var outputFile = new MediaFile {Filename = videoSaveDirectory.FullName + "\\" + videoFileName};
-
-//            var conversionOptions = new ConversionOptions
-//            {
-//                VideoAspectRatio = VideoAspectRatio.R16_9,
-//                VideoSize = VideoSize.Hd720,
-//                AudioSampleRate = AudioSampleRate.Hz44100,
-//                VideoBitRate = 96,
-//                VideoFps = 30,
-//                BaselineProfile = true
-//            };
-//
-//            using (var engine = new Engine())
-//            {
-//                engine.Convert(inputFile, outputFile, conversionOptions);
-//            }
-//            File.Delete(inputFile.Filename);
             File.Move(inputFile.Filename, outputFile.Filename);
-            
-            //6- Create srt files
-            var srtFilename = outputFile.Filename.Substring(0, outputFile.Filename.Length - 4) + ".srt";
-            var srtString = clipToSave.TranscriptClip.GetSrtString(clipToSave.DurationSeconds);
-            File.WriteAllText(srtFilename, srtString);
+
+            // 5- Create srt files
+            if (Constants.SUBTITLES)
+            {
+                var srtFilename = outputFile.Filename.Substring(0, outputFile.Filename.Length - 4) + ".srt";
+                var srtString = clipToSave.TranscriptClip.GetSrtString(clipToSave.DurationSeconds);
+                File.WriteAllText(srtFilename, srtString);
+            }
 
             return Ok(new ProgressArgs()
             {
@@ -188,14 +172,14 @@ namespace PluralsightDownloader.Web.Controllers
                 FileName = videoFileName,
                 TotalBytes = totalBytes,
                 IsDownloading = false,
-                Extra = new {clipToSave.ModuleIndex, clipToSave.ClipIndex}
+                Extra = new { clipToSave.ModuleIndex, clipToSave.ClipIndex }
             });
         }
 
         private long GetClipMaxDownloadSpeed(long seconds, long totalBytes)
         {
-            var maxSpeed = totalBytes/seconds;
-            return maxSpeed*Constants.CLIP_DOWNLOAD_SPEED_MULTIPLIER;
+            var maxSpeed = totalBytes / seconds;
+            return maxSpeed * Constants.CLIP_DOWNLOAD_SPEED_MULTIPLIER;
         }
 
         // ToDo: videos location should be configurable from client.
@@ -212,7 +196,7 @@ namespace PluralsightDownloader.Web.Controllers
 
         private string GetClipUrl(ClipToSave clip)
         {
-            var http = (HttpWebRequest) WebRequest.Create(new Uri(Constants.COURSE_CLIP_DATA_URL));
+            var http = (HttpWebRequest)WebRequest.Create(new Uri(Constants.COURSE_CLIP_DATA_URL));
             http.Accept = "application/json";
             http.ContentType = "application/json";
             http.Method = "POST";
@@ -251,7 +235,7 @@ namespace PluralsightDownloader.Web.Controllers
 
         private string LoginToPluralSight()
         {
-            var req = (HttpWebRequest) WebRequest.Create(Constants.LOGIN_URL);
+            var req = (HttpWebRequest)WebRequest.Create(Constants.LOGIN_URL);
             req.AllowAutoRedirect = false;
             req.Method = "POST";
             req.ContentType = "application/x-www-form-urlencoded";
@@ -272,7 +256,7 @@ namespace PluralsightDownloader.Web.Controllers
                 if (string.IsNullOrWhiteSpace(authCookie) || authCookie.Contains("signin-errors"))
                 {
                     // ToDO: better handling of errors returned by pluralsight server.
-                    var resp = new HttpResponseMessage((HttpStatusCode) 422)
+                    var resp = new HttpResponseMessage((HttpStatusCode)422)
                     {
                         Content = new StringContent("Invalid credentials.")
                     };

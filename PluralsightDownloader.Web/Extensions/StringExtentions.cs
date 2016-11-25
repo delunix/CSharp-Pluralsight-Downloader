@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
+﻿using System.Text;
 
 namespace PluralsightDownloader.Web.Extensions
 {
@@ -15,8 +11,8 @@ namespace PluralsightDownloader.Web.Extensions
 
             foreach (char c in System.IO.Path.GetInvalidFileNameChars())
                 fileName = fileName.Replace(c.ToString(), "");
-            
-          return fileName;
+
+            return fileName;
         }
     }
 }

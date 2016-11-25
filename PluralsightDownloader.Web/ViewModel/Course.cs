@@ -43,5 +43,5 @@ namespace PluralsightDownloader.Web.ViewModel
         public List<CourseModule> CourseModules { get; set; }
 
         public ExerciseFiles ExerciseFiles { get; set; }
-  }
+    }
 }

@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Xml;
 
 namespace PluralsightDownloader.Web.ViewModel
 {
@@ -15,10 +13,10 @@ namespace PluralsightDownloader.Web.ViewModel
         private string[] SplitLine(string line, int max)
         {
             var charCount = 0;
-            return line.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
-                .GroupBy(w => (charCount += (((charCount%max) + w.Length + 1 >= max)
-                    ? max - (charCount%max)
-                    : 0) + w.Length + 1)/max)
+            return line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                .GroupBy(w => (charCount += (((charCount % max) + w.Length + 1 >= max)
+                    ? max - (charCount % max)
+                    : 0) + w.Length + 1) / max)
                 .Select(g => string.Join(" ", g.ToArray()))
                 .ToArray();
         }

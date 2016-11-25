@@ -14,6 +14,7 @@ namespace PluralsightDownloader.Web
         public static readonly string COURSE_RETRIEVE_URL = ConfigurationManager.AppSettings["COURSE_RETRIEVE_URL"];
         public static readonly string USER_NAME = ConfigurationManager.AppSettings["USER_NAME"];
         public static readonly string PASSWORD = ConfigurationManager.AppSettings["PASSWORD"];
+        public static readonly bool SUBTITLES = bool.Parse(ConfigurationManager.AppSettings["SUBTITLES"]);
         public static readonly string AUTH_COOKIE = "AuthCookie";
         public static readonly string DOWNLOAD_FOLDER_PATH = ConfigurationManager.AppSettings["DOWNLOAD_FOLDER_PATH"] + "Pluralsight Downloader";
         public static readonly int CLIP_DOWNLOAD_SPEED_MULTIPLIER = int.Parse(ConfigurationManager.AppSettings["CLIP_DOWNLOAD_SPEED_MULTIPLIER"]);
