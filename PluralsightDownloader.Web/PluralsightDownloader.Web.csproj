@@ -184,6 +184,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="CamelCaseResponseJsonNetSerializer.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="ViewModel\Translationlanguage.cs" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -200,6 +201,7 @@
     <Compile Include="Extensions\StringExtentions.cs" />
     <Compile Include="ThrottledStream.cs" />
     <Compile Include="ViewModel\ClipToSave.cs" />
+    <Compile Include="ViewModel\CoursePayload.cs" />
     <Compile Include="ViewModel\ExerciseFiles.cs" />
     <Compile Include="ViewModel\Transcript.cs" />
     <Compile Include="ViewModel\ProgressArgs.cs" />

@@ -123,6 +123,7 @@
             });
             clip.courseTitle = vm.course.title;
             clip.moduleTitle = module.title;
+            clip.supportsWideScreenVideoFormats = vm.course.supportsWideScreenVideoFormats;
             clip.moduleIndex = _.findIndex(vm.course.courseModules, function (moduleItem) {
                 return moduleItem.title === module.title;
             });

@@ -7,6 +7,7 @@ using PluralsightDownloader.Web.Hubs;
 using PluralsightDownloader.Web.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -41,6 +42,12 @@ namespace PluralsightDownloader.Web.Controllers
                 {
                     json = webClient.DownloadString(string.Format(Constants.COURSE_DATA_URL, coursename));
                     course = JsonConvert.DeserializeObject<Course>(json);
+
+                    NameValueCollection postData = new NameValueCollection() { { "courseId", coursename } };
+                    byte[] responsebytes = webClient.UploadValues(Constants.COURSE_PAYLOAD_DATA_URL, postData);
+                    json = Encoding.UTF8.GetString(responsebytes);
+                    var coursePayload = JsonConvert.DeserializeObject<CoursePayload>(json);
+                    course.SupportsWideScreenVideoFormats = coursePayload.SupportsWideScreenVideoFormats;
 
                     json = webClient.DownloadString(string.Format(Constants.COURSE_CONTENT_DATA_URL, coursename));
                     course.CourseModules = JsonConvert.DeserializeObject<List<CourseModule>>(json);
@@ -192,7 +199,7 @@ namespace PluralsightDownloader.Web.Controllers
                 course = playerParameters["course"],
                 cn = playerParameters["clip"],
                 mt = "mp4",
-                q = "1280x720",
+                q = (clip.SupportsWideScreenVideoFormats ? "1280x720" : "1024x768"),
                 cap = false,
                 lc = "en"
             };

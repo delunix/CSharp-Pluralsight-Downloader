@@ -40,6 +40,8 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public bool IsUserAuthorizedForTranscript { get; set; }
 
+        public bool SupportsWideScreenVideoFormats { get; set; }
+
         public List<CourseModule> CourseModules { get; set; }
 
         public ExerciseFiles ExerciseFiles { get; set; }
