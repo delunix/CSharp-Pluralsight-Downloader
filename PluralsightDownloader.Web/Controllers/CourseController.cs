@@ -1,6 +1,7 @@
 ﻿using MediaToolkit.Model;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
+using NLog;
 using PluralsightDownloader.Web.Extensions;
 using PluralsightDownloader.Web.Hubs;
 using PluralsightDownloader.Web.ViewModel;
@@ -20,35 +21,50 @@ namespace PluralsightDownloader.Web.Controllers
     [RoutePrefix("api/courses")]
     public class CourseController : ApiController
     {
+        #region Properties
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        #endregion Properties
+
+        #region Actions
+
         [HttpGet]
         [Route("{coursename}")]
         public IHttpActionResult CourseData(string coursename)
         {
-            Course course;
-            String json;
-            using (var webClient = new WebClient())
+            Course course = new Course();
+            String json = String.Empty;
+            try
             {
-                json = webClient.DownloadString(string.Format(Constants.COURSE_DATA_URL, coursename));
-                course = JsonConvert.DeserializeObject<Course>(json);
-
-                json = webClient.DownloadString(string.Format(Constants.COURSE_CONTENT_DATA_URL, coursename));
-                course.CourseModules = JsonConvert.DeserializeObject<List<CourseModule>>(json);
-
-                SetupAuthenticationCookie(webClient);
-                json = webClient.DownloadString(string.Format(Constants.COURSE_EXERCISE_FILES_URL, coursename));
-                course.ExerciseFiles = JsonConvert.DeserializeObject<ExerciseFiles>(json);
-
-                json = webClient.DownloadString(string.Format(Constants.COURSE_TRANSCRIPT_URL, coursename));
-                var transcript = JsonConvert.DeserializeObject<Transcript>(json);
-
-                foreach (CourseModule module in course.CourseModules)
+                using (var webClient = new WebClient())
                 {
-                    var transMod = transcript.Modules.Single(x => x.Title == module.Title);
-                    foreach (Clip clip in module.Clips)
+                    json = webClient.DownloadString(string.Format(Constants.COURSE_DATA_URL, coursename));
+                    course = JsonConvert.DeserializeObject<Course>(json);
+
+                    json = webClient.DownloadString(string.Format(Constants.COURSE_CONTENT_DATA_URL, coursename));
+                    course.CourseModules = JsonConvert.DeserializeObject<List<CourseModule>>(json);
+
+                    SetupAuthenticationCookie(webClient);
+                    json = webClient.DownloadString(string.Format(Constants.COURSE_EXERCISE_FILES_URL, coursename));
+                    course.ExerciseFiles = JsonConvert.DeserializeObject<ExerciseFiles>(json);
+
+                    json = webClient.DownloadString(string.Format(Constants.COURSE_TRANSCRIPT_URL, coursename));
+                    var transcript = JsonConvert.DeserializeObject<Transcript>(json);
+
+                    foreach (CourseModule module in course.CourseModules)
                     {
-                        clip.TranscriptClip = transMod.Clips.Single(x => x.Title == clip.Title);
+                        var transMod = transcript.Modules.Single(x => x.Title == module.Title);
+                        foreach (Clip clip in module.Clips)
+                        {
+                            clip.TranscriptClip = transMod.Clips.Single(x => x.Title == clip.Title);
+                        }
                     }
                 }
+            }
+            catch (Exception exception)
+            {
+                return HandleException(exception);
             }
 
             return Ok(course);
@@ -62,119 +78,87 @@ namespace PluralsightDownloader.Web.Controllers
             try
             {
                 clipUrl = GetClipUrl(clipToSave);
-            }
-            catch (WebException webException)
-            {
-                if (webException.Status == WebExceptionStatus.ProtocolError)
-                {
-                    var response = webException.Response as HttpWebResponse;
-                    if (response != null)
-                    {
-                        switch ((int)response.StatusCode)
-                        {
-                            // if the request is unauthorized or bad, try to set up authentication cookie again..
-                            case 401:
-                            case 400:
-                                clipUrl = GetClipUrl(clipToSave);
-                                break;
 
-                            case 429:
-                                // 429 means that that we are sending too many requests.
-                                // So we need to wait a little before sending next request.
-                                return ResponseMessage(Request.CreateResponse((HttpStatusCode)429,
-                                    "Too many requests in a short time. Please try again after some time."));
+                // 2- make sure the folders structure exist.
+                var videoSaveDirectory = SetUpVideoFolderStructure(clipToSave.CourseTitle,
+                    (clipToSave.ModuleIndex + 1).ToString("D2") + " - " + clipToSave.ModuleTitle,
+                    (clipToSave.ClipIndex + 1).ToString("D2") + " - " + clipToSave.Title);
+
+                // 3- download the video and report progress back.
+                int receivedBytes = 0;
+                long totalBytes = 0;
+                var videoFileName = ((clipToSave.ClipIndex + 1).ToString("D2") + " - " + clipToSave.Title + ".mp4").ToValidFileName();
+                var videoSaveLocation = videoSaveDirectory.FullName + "\\raw-" + videoFileName;
+
+                using (var client = new WebClient())
+                using (var regStream = await client.OpenReadTaskAsync(clipUrl))
+                using (var stream = new ThrottledStream(regStream, 115200))
+                {
+                    byte[] buffer = new byte[1024];
+                    totalBytes = Int32.Parse(client.ResponseHeaders[HttpResponseHeader.ContentLength]);
+                    stream.MaximumBytesPerSecond = GetClipMaxDownloadSpeed(clipToSave.DurationSeconds, totalBytes);
+
+                    using (var fileStream = File.OpenWrite(videoSaveLocation))
+                    {
+                        for (;;)
+                        {
+                            int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                            if (bytesRead == 0)
+                            {
+                                await Task.Yield();
+                                break;
+                            }
+
+                            receivedBytes += bytesRead;
+                            var progress = new ProgressArgs()
+                            {
+                                Id = clipToSave.Name,
+                                BytesReceived = receivedBytes,
+                                FileName = videoFileName,
+                                TotalBytes = totalBytes,
+                                IsDownloading = true,
+                                Extra = new { clipToSave.ModuleIndex, clipToSave.ClipIndex }
+                            };
+                            fileStream.Write(buffer, 0, bytesRead);
+                            var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
+                            hubContext.Clients.All.updateProgress(progress);
                         }
                     }
                 }
-            }
-            catch (HttpResponseException responseException)
-            {
-                switch ((int)responseException.Response.StatusCode)
+
+                // 4- save the video file.
+                var inputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\raw-" + videoFileName };
+                var outputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\" + videoFileName };
+
+                File.Move(inputFile.Filename, outputFile.Filename);
+
+                // 5- Create srt files
+                if (Constants.SUBTITLES)
                 {
-                    case 422:
-                        // 422 means Invalid user name or password.
-                        return
-                            ResponseMessage(Request.CreateResponse((HttpStatusCode)422,
-                                "Invalid user name or password."));
+                    var srtFilename = outputFile.Filename.Substring(0, outputFile.Filename.Length - 4) + ".srt";
+                    var srtString = clipToSave.TranscriptClip.GetSrtString(clipToSave.DurationSeconds);
+                    File.WriteAllText(srtFilename, srtString);
                 }
+
+                return Ok(new ProgressArgs()
+                {
+                    Id = clipToSave.Name,
+                    BytesReceived = receivedBytes,
+                    FileName = videoFileName,
+                    TotalBytes = totalBytes,
+                    IsDownloading = false,
+                    Extra = new { clipToSave.ModuleIndex, clipToSave.ClipIndex }
+                });
             }
             catch (Exception exception)
             {
-                return InternalServerError(exception);
+                return HandleException(exception);
             }
-
-            // 2- make sure the folders structure exist.
-            var videoSaveDirectory = SetUpVideoFolderStructure(clipToSave.CourseTitle,
-                (clipToSave.ModuleIndex + 1).ToString("D2") + " - " + clipToSave.ModuleTitle,
-                (clipToSave.ClipIndex + 1).ToString("D2") + " - " + clipToSave.Title);
-
-            // 3- download the video and report progress back.
-            int receivedBytes = 0;
-            long totalBytes = 0;
-            var videoFileName =
-                ((clipToSave.ClipIndex + 1).ToString("D2") + " - " + clipToSave.Title + ".mp4").ToValidFileName();
-            var videoSaveLocation = videoSaveDirectory.FullName + "\\raw-" + videoFileName;
-
-            using (var client = new WebClient())
-            using (var regStream = await client.OpenReadTaskAsync(clipUrl))
-            using (var stream = new ThrottledStream(regStream, 115200))
-            {
-                byte[] buffer = new byte[1024];
-                totalBytes = Int32.Parse(client.ResponseHeaders[HttpResponseHeader.ContentLength]);
-                stream.MaximumBytesPerSecond = GetClipMaxDownloadSpeed(clipToSave.DurationSeconds, totalBytes);
-
-                using (var fileStream = File.OpenWrite(videoSaveLocation))
-                {
-                    for (;;)
-                    {
-                        int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                        if (bytesRead == 0)
-                        {
-                            await Task.Yield();
-                            break;
-                        }
-
-                        receivedBytes += bytesRead;
-                        var progress = new ProgressArgs()
-                        {
-                            Id = clipToSave.Name,
-                            BytesReceived = receivedBytes,
-                            FileName = videoFileName,
-                            TotalBytes = totalBytes,
-                            IsDownloading = true,
-                            Extra = new { clipToSave.ModuleIndex, clipToSave.ClipIndex }
-                        };
-                        fileStream.Write(buffer, 0, bytesRead);
-                        var hubContext = GlobalHost.ConnectionManager.GetHubContext<ProgressHub>();
-                        hubContext.Clients.All.updateProgress(progress);
-                    }
-                }
-            }
-
-            // 4- save the video file.
-            var inputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\raw-" + videoFileName };
-            var outputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\" + videoFileName };
-
-            File.Move(inputFile.Filename, outputFile.Filename);
-
-            // 5- Create srt files
-            if (Constants.SUBTITLES)
-            {
-                var srtFilename = outputFile.Filename.Substring(0, outputFile.Filename.Length - 4) + ".srt";
-                var srtString = clipToSave.TranscriptClip.GetSrtString(clipToSave.DurationSeconds);
-                File.WriteAllText(srtFilename, srtString);
-            }
-
-            return Ok(new ProgressArgs()
-            {
-                Id = clipToSave.Name,
-                BytesReceived = receivedBytes,
-                FileName = videoFileName,
-                TotalBytes = totalBytes,
-                IsDownloading = false,
-                Extra = new { clipToSave.ModuleIndex, clipToSave.ClipIndex }
-            });
         }
+
+        #endregion Actions
+
+        #region Helpers
 
         private long GetClipMaxDownloadSpeed(long seconds, long totalBytes)
         {
@@ -186,12 +170,10 @@ namespace PluralsightDownloader.Web.Controllers
         private DirectoryInfo SetUpVideoFolderStructure(string courseTitle, string moduleTitle, string clipTitle)
         {
             Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH);
-            Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " +
-                                      courseTitle.ToValidFileName());
-            return
-                Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " +
-                                          courseTitle.ToValidFileName() + "\\" +
-                                          moduleTitle.ToValidFileName());
+            Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " + courseTitle.ToValidFileName());
+
+            return Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " +
+                                          courseTitle.ToValidFileName() + "\\" + moduleTitle.ToValidFileName());
         }
 
         private string GetClipUrl(ClipToSave clip)
@@ -223,13 +205,20 @@ namespace PluralsightDownloader.Web.Controllers
             // if the clip is not free, then the user must sign in first and set authentication cookie.
             if (!clip.UserMayViewClip)
                 SetupAuthenticationCookie(http);
-
-            using (var response = http.GetResponse())
-            using (var receiveStream = response.GetResponseStream())
-            using (var sr = new StreamReader(receiveStream))
+            try
             {
-                var clipurl = sr.ReadToEnd();
-                return clipurl;
+                using (var response = http.GetResponse())
+                using (var receiveStream = response.GetResponseStream())
+                using (var sr = new StreamReader(receiveStream))
+                {
+                    var clipurl = sr.ReadToEnd();
+                    return clipurl;
+                }
+            }
+            catch
+            {
+                logger.Error("Couldn't retrieve clip URL. Request parameters={0}", JsonConvert.SerializeObject(playerParametersObj));
+                throw new Exception("Couldn't retrieve clip URL. Please check log file.");
             }
         }
 
@@ -241,7 +230,6 @@ namespace PluralsightDownloader.Web.Controllers
             req.ContentType = "application/x-www-form-urlencoded";
             using (var writer = new StreamWriter(req.GetRequestStream()))
             {
-                // write to the body of the POST request
                 writer.Write("Username=" + Constants.USER_NAME + "&Password=" + Constants.PASSWORD);
             }
 
@@ -256,11 +244,8 @@ namespace PluralsightDownloader.Web.Controllers
                 if (string.IsNullOrWhiteSpace(authCookie) || authCookie.Contains("signin-errors"))
                 {
                     // ToDO: better handling of errors returned by pluralsight server.
-                    var resp = new HttpResponseMessage((HttpStatusCode)422)
-                    {
-                        Content = new StringContent("Invalid credentials.")
-                    };
-                    throw new HttpResponseException(resp);
+                    logger.Error("Invalid user name or password.");
+                    throw new UnauthorizedAccessException("Invalid user name or password.");
                 }
 
                 HttpContext.Current.Application[Constants.AUTH_COOKIE] = authCookie;
@@ -270,12 +255,46 @@ namespace PluralsightDownloader.Web.Controllers
 
         private void SetupAuthenticationCookie(WebClient client)
         {
-            client.Headers.Add("Cookie", LoginToPluralSight());
+            if (HttpContext.Current.Application[Constants.AUTH_COOKIE] == null)
+                client.Headers.Add("Cookie", LoginToPluralSight());
+            else
+                client.Headers.Add("Cookie", HttpContext.Current.Application[Constants.AUTH_COOKIE].ToString());
         }
 
         private void SetupAuthenticationCookie(WebRequest client)
         {
-            client.Headers.Add("Cookie", LoginToPluralSight());
+            if (HttpContext.Current.Application[Constants.AUTH_COOKIE] == null)
+                client.Headers.Add("Cookie", LoginToPluralSight());
+            else
+                client.Headers.Add("Cookie", HttpContext.Current.Application[Constants.AUTH_COOKIE].ToString());
         }
+
+        private IHttpActionResult HandleException(Exception exception)
+        {
+            logger.Trace(exception);
+            if (exception is WebException)
+            {
+                var webException = (WebException)exception;
+                if (webException.Status == WebExceptionStatus.ProtocolError)
+                {
+                    var response = webException.Response as HttpWebResponse;
+                    if (response != null)
+                    {
+                        switch ((int)response.StatusCode)
+                        {
+                            case 429:
+                                // 429 means that that we are sending too many requests.
+                                // So we need to wait a little before sending next request.
+                                logger.Warn("Too many requests in a short time.");
+                                return ResponseMessage(Request.CreateResponse((HttpStatusCode)429, "Too many requests in a short time. Please try again after some time."));
+                        }
+                    }
+                }
+            }
+
+            return InternalServerError(exception);
+        }
+
+        #endregion Helpers
     }
 }

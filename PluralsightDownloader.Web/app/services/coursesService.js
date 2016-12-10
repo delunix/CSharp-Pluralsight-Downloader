@@ -36,8 +36,8 @@
                     appCache.put(self.coursesCache, cachedCourses);
                     deferred.resolve(data);
                 })
-                .error(function (error, status, headers, config) {
-                    deferred.reject({ error: error.exceptionMessage, status: status });
+                .error(function (error, status, headers, config) {                        
+                    deferred.reject({ error: error.exceptionMessage || error, status: status });
                 });
             }
 

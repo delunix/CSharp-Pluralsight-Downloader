@@ -57,10 +57,10 @@
         function loadCourseData() {
             var title = vm.courseName.replace(/\s/g, '');
             if (vm.courseName.indexOf('/') > 0) {
-                title = _.last(vm.courseName.split('/'));
+                title = vm.courseName.split('/')[vm.courseName.split('/').indexOf("courses") + 1];
             }
             return coursesService.getCourseData(title).then(function (course) {
-                if (course.title == null) {
+                if (course.title === null) {
                     alert('Course not found!.');
                     vm.course = undefined;
                 } else {
@@ -70,7 +70,7 @@
                 toaster.pop({
                     type: 'error',
                     title: '',
-                    body: 'Couldn\'t retrieve course data. Please make sure that you have the correct course name and try again.'
+                    body: error.error || 'Couldn\'t retrieve course data. Please make sure that you have the correct course name and try again.'
                 });
             });
         }
