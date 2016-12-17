@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -53,20 +52,20 @@ namespace PluralsightDownloader.Web.Controllers
                     course.CourseModules = JsonConvert.DeserializeObject<List<CourseModule>>(json);
 
                     SetupAuthenticationCookie(webClient);
-                    json = webClient.DownloadString(string.Format(Constants.COURSE_EXERCISE_FILES_URL, coursename));
-                    course.ExerciseFiles = JsonConvert.DeserializeObject<ExerciseFiles>(json);
+                    // TODO: check if the user has access to exercise files.
+                    //json = webClient.DownloadString(string.Format(Constants.COURSE_EXERCISE_FILES_URL, coursename));
+                    //course.ExerciseFiles = JsonConvert.DeserializeObject<ExerciseFiles>(json);
 
                     json = webClient.DownloadString(string.Format(Constants.COURSE_TRANSCRIPT_URL, coursename));
                     var transcript = JsonConvert.DeserializeObject<Transcript>(json);
 
-                    foreach (CourseModule module in course.CourseModules)
+                    course.CourseModules.ForEachWithIndex((module, moduleIndex) =>
                     {
-                        var transMod = transcript.Modules.Single(x => x.Title == module.Title);
-                        foreach (Clip clip in module.Clips)
+                        module.Clips.ForEachWithIndex((clip, clipIndex) =>
                         {
-                            clip.TranscriptClip = transMod.Clips.Single(x => x.Title == clip.Title);
-                        }
-                    }
+                            clip.TranscriptClip = transcript.Modules[moduleIndex].Clips[clipIndex];
+                        });
+                    });
                 }
             }
             catch (Exception exception)

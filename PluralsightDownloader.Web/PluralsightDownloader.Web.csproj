@@ -184,6 +184,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="CamelCaseResponseJsonNetSerializer.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="ViewModel\Translationlanguage.cs" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
