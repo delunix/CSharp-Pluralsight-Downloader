@@ -236,7 +236,7 @@ namespace PluralsightDownloader.Web.Controllers
             req.ContentType = "application/x-www-form-urlencoded";
             using (var writer = new StreamWriter(req.GetRequestStream()))
             {
-                writer.Write("Username=" + Constants.USER_NAME + "&Password=" + Constants.PASSWORD);
+                writer.Write("Username=" + HttpUtility.UrlEncode(Constants.USER_NAME) + "&Password=" + HttpUtility.UrlEncode(Constants.PASSWORD));
             }
 
             req.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0";
