@@ -46,10 +46,15 @@ namespace PluralsightDownloader.Web.Controllers
                     byte[] responsebytes = webClient.UploadValues(Constants.COURSE_PAYLOAD_DATA_URL, postData);
                     json = Encoding.UTF8.GetString(responsebytes);
                     var coursePayload = JsonConvert.DeserializeObject<CoursePayload>(json);
+                    if (coursePayload == null)
+                    {
+                        logger.Error("Couldn't retrieve course. Requested course={0}", coursename);
+                        throw new Exception("Couldn't retrieve course data. Please check log file.");
+                    }
                     course.SupportsWideScreenVideoFormats = coursePayload.SupportsWideScreenVideoFormats;
 
                     json = webClient.DownloadString(string.Format(Constants.COURSE_CONTENT_DATA_URL, coursename));
-                    course.CourseModules = JsonConvert.DeserializeObject<List<CourseModule>>(json);
+                    course.Content = JsonConvert.DeserializeObject<CourseContent>(json);
 
                     SetupAuthenticationCookie(webClient);
                     // TODO: check if the user has access to exercise files.
@@ -59,7 +64,7 @@ namespace PluralsightDownloader.Web.Controllers
                     json = webClient.DownloadString(string.Format(Constants.COURSE_TRANSCRIPT_URL, coursename));
                     var transcript = JsonConvert.DeserializeObject<Transcript>(json);
 
-                    course.CourseModules.ForEachWithIndex((module, moduleIndex) =>
+                    course.Content.Modules.ForEachWithIndex((module, moduleIndex) =>
                     {
                         module.Clips.ForEachWithIndex((clip, clipIndex) =>
                         {
@@ -79,7 +84,7 @@ namespace PluralsightDownloader.Web.Controllers
         [Route("clip/{clipname}/download/")]
         public async Task<IHttpActionResult> DownloadCourseModuleClip(string clipname, ClipToSave clipToSave)
         {
-            string clipUrl = string.Empty;
+            ClipDownloadData clipUrl = null;
             // 1- get the video clip url to download.
             try
             {
@@ -97,7 +102,7 @@ namespace PluralsightDownloader.Web.Controllers
                 var videoSaveLocation = videoSaveDirectory.FullName + "\\raw-" + videoFileName;
 
                 using (var client = new WebClient())
-                using (var regStream = await client.OpenReadTaskAsync(clipUrl))
+                using (var regStream = await client.OpenReadTaskAsync(clipUrl.URLs[0].URL))
                 using (var stream = new ThrottledStream(regStream, 115200))
                 {
                     byte[] buffer = new byte[1024];
@@ -136,6 +141,8 @@ namespace PluralsightDownloader.Web.Controllers
                 var inputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\raw-" + videoFileName };
                 var outputFile = new MediaFile { Filename = videoSaveDirectory.FullName + "\\" + videoFileName };
 
+                if (File.Exists(outputFile.Filename))
+                    File.Delete(outputFile.Filename);
                 File.Move(inputFile.Filename, outputFile.Filename);
 
                 // 5- Create srt files
@@ -182,7 +189,7 @@ namespace PluralsightDownloader.Web.Controllers
                                           courseTitle.ToValidFileName() + "\\" + moduleTitle.ToValidFileName());
         }
 
-        private string GetClipUrl(ClipToSave clip)
+        private ClipDownloadData GetClipUrl(ClipToSave clip)
         {
             var http = (HttpWebRequest)WebRequest.Create(new Uri(Constants.COURSE_CLIP_DATA_URL));
             http.Accept = "application/json";
@@ -190,17 +197,17 @@ namespace PluralsightDownloader.Web.Controllers
             http.Method = "POST";
             http.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0";
 
-            var playerParameters = HttpUtility.ParseQueryString(clip.PlayerParameters);
+            var playerParameters = HttpUtility.ParseQueryString(clip.PlayerUrl.Split(new char[] { '?' }, 2)[1]);
             var playerParametersObj = new
             {
-                a = playerParameters["author"],
-                m = playerParameters["name"],
-                course = playerParameters["course"],
-                cn = playerParameters["clip"],
-                mt = "mp4",
-                q = (clip.SupportsWideScreenVideoFormats ? "1280x720" : "1024x768"),
-                cap = false,
-                lc = "en"
+                author = playerParameters["author"],
+                moduleName = playerParameters["name"],
+                courseName = playerParameters["course"],
+                clipIndex = int.Parse(playerParameters["clip"]),
+                mediaType = "mp4",
+                quality = (clip.SupportsWideScreenVideoFormats ? "1280x720" : "1024x768"),
+                includeCaptions = false,
+                locale = Constants.SUBTITLES_LOCALE
             };
             var encoding = new ASCIIEncoding();
             Byte[] dataBytes = encoding.GetBytes(JsonConvert.SerializeObject(playerParametersObj));
@@ -218,7 +225,7 @@ namespace PluralsightDownloader.Web.Controllers
                 using (var sr = new StreamReader(receiveStream))
                 {
                     var clipurl = sr.ReadToEnd();
-                    return clipurl;
+                    return JsonConvert.DeserializeObject<ClipDownloadData>(clipurl); ;
                 }
             }
             catch

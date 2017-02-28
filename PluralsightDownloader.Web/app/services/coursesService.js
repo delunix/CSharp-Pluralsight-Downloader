@@ -46,7 +46,7 @@
 
         function downloadCourseModuleClip(clip) {
             var deferred = $q.defer();
-            $http.post('/api/courses/clip/' + clip.name + '/download', clip)
+            $http.post('/api/courses/clip/' + clip.title + '/download', clip)
             .success(function (data, status, headers, config) {
                 deferred.resolve(data);
             })

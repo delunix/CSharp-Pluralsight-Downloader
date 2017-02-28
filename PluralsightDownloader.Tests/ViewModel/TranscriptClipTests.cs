@@ -29,7 +29,7 @@ namespace PluralsightDownloader.Tests.ViewModel
             course = JsonConvert.DeserializeObject<Course>(courseJson);
 
             var courseModulesJson = File.ReadAllText(examplesFolder + "\\CourseModules.json");
-            course.CourseModules = JsonConvert.DeserializeObject<List<CourseModule>>(courseModulesJson);
+            course.Content = JsonConvert.DeserializeObject<CourseContent>(courseModulesJson);
         }
 
         [TestMethod()]
@@ -37,7 +37,7 @@ namespace PluralsightDownloader.Tests.ViewModel
         {
             
             var clip = transcript.Modules.First().Clips.First();
-            var courseClip = course.CourseModules.First().Clips.First();
+            var courseClip = course.Content.Modules.First().Clips.First();
             var srtString = clip.GetSrtString(courseClip.DurationSeconds);
 //            File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\ViewModel\\srtTest.srt", srtString);
             var srtTest = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\ViewModel\\srtTest.srt");

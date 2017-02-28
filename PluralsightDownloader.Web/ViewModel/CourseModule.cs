@@ -8,7 +8,11 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public string ModuleRef { get; set; }
 
+        public string ID { get; set; }
+
         public string Title { get; set; }
+
+        public string PlayerUrl { get; set; }
 
         public string Description { get; set; }
 

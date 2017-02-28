@@ -2,12 +2,20 @@ using System.Collections.Generic;
 
 namespace PluralsightDownloader.Web.ViewModel
 {
-    public class Clip
+    public class CourseClip
     {
-        public Clip()
+        public CourseClip()
         {
             Progress = new ProgressArgs() { TotalBytes = 1 };
         }
+
+        public string ID { get; set; }
+
+        public string Title { get; set; }
+
+        public string PlayerUrl { get; set; }
+
+        public string Duration { get; set; }
 
         public List<object> Transcripts { get; set; }
 
@@ -15,11 +23,7 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public int ClipIndex { get; set; }
 
-        public string Title { get; set; }
-
         public bool HasBeenViewed { get; set; }
-
-        public string Duration { get; set; }
 
         public string PlayerParameters { get; set; }
 

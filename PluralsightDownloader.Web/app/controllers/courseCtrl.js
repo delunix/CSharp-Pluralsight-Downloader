@@ -77,7 +77,7 @@
 
         function addClipToDownloadList(clip, module) {
             var clipFound = _.find(vm.clipsToDownloadQueue, function (item) {
-                return item.clip.name === clip.name;
+                return item.clip.id === clip.id;
             });
             if (!clipFound) {
                 vm.clipsToDownloadQueue.push({ clip: clip, module: module });
@@ -98,7 +98,7 @@
         }
 
         function addCourseToDownloadList() {
-            _.forEach(vm.course.courseModules, function (module) {
+            _.forEach(vm.course.content.modules, function (module) {
                 module.isAccordionOpen = true;
                 vm.addModuleToDownloadList(module);
             });
@@ -124,7 +124,7 @@
             clip.courseTitle = vm.course.title;
             clip.moduleTitle = module.title;
             clip.supportsWideScreenVideoFormats = vm.course.supportsWideScreenVideoFormats;
-            clip.moduleIndex = _.findIndex(vm.course.courseModules, function (moduleItem) {
+            clip.moduleIndex = _.findIndex(vm.course.content.module, function (moduleItem) {
                 return moduleItem.title === module.title;
             });
             return coursesService.downloadCourseModuleClip(clip).then(function (progress) {

@@ -185,6 +185,17 @@
     <Compile Include="CamelCaseResponseJsonNetSerializer.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="ViewModel\ClipDownloadCaption.cs" />
+    <Compile Include="ViewModel\ClipDownloadUrl.cs" />
+    <Compile Include="ViewModel\ClipDownloadData.cs" />
+    <Compile Include="ViewModel\CourseClip.cs" />
+    <Compile Include="ViewModel\CourseAuthor.cs" />
+    <Compile Include="ViewModel\CourseImage.cs" />
+    <Compile Include="ViewModel\CourseSimpleModule.cs" />
+    <Compile Include="ViewModel\CourseSimpleRating.cs" />
+    <Compile Include="ViewModel\CourseRetired.cs" />
+    <Compile Include="ViewModel\CourseSkill.cs" />
+    <Compile Include="ViewModel\CourseContent.cs" />
     <Compile Include="ViewModel\Translationlanguage.cs" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
