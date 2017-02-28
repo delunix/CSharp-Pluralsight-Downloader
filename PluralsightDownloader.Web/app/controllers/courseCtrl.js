@@ -124,9 +124,7 @@
             clip.courseTitle = vm.course.title;
             clip.moduleTitle = module.title;
             clip.supportsWideScreenVideoFormats = vm.course.supportsWideScreenVideoFormats;
-            clip.moduleIndex = _.findIndex(vm.course.content.module, function (moduleItem) {
-                return moduleItem.title === module.title;
-            });
+            clip.moduleIndex = module.moduleIndex;
             return coursesService.downloadCourseModuleClip(clip).then(function (progress) {
                 toaster.pop({
                     type: 'success',
