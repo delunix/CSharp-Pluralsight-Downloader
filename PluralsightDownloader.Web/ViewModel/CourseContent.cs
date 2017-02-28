@@ -13,12 +13,23 @@ namespace PluralsightDownloader.Web.ViewModel
         public string Title { get; set; }
 
         public string ShortDescription { get; set; }
-
+        
         public string Description { get; set; }
 
         public string Level { get; set; }
-
-        public string Duration { get; set; }
+        
+        private string _duration = null;
+        public string Duration
+        {
+            get
+            {
+                return _duration;
+            }
+            set
+            {
+                _duration = Course.FormatDuration(value);
+            }
+        }
 
         public string PopularityScore { get; set; }
 

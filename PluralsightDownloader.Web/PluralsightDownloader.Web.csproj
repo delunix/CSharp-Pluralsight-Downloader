@@ -188,9 +188,9 @@
     <Compile Include="ViewModel\ClipDownloadCaption.cs" />
     <Compile Include="ViewModel\ClipDownloadUrl.cs" />
     <Compile Include="ViewModel\ClipDownloadData.cs" />
-    <Compile Include="ViewModel\CourseClip.cs" />
     <Compile Include="ViewModel\CourseAuthor.cs" />
     <Compile Include="ViewModel\CourseImage.cs" />
+    <Compile Include="ViewModel\CourseSimpleClip.cs" />
     <Compile Include="ViewModel\CourseSimpleModule.cs" />
     <Compile Include="ViewModel\CourseSimpleRating.cs" />
     <Compile Include="ViewModel\CourseRetired.cs" />
@@ -224,9 +224,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModel\Author.cs" />
-    <Compile Include="ViewModel\Clip.cs" />
     <Compile Include="ViewModel\Course.cs" />
-    <Compile Include="ViewModel\CourseModule.cs" />
     <Compile Include="ViewModel\CourseRating.cs" />
     <Compile Include="ViewModel\TranscriptClip.cs" />
     <Compile Include="ViewModel\TranscriptModule.cs" />

@@ -8,7 +8,18 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public string Level { get; set; }
 
-        public string Duration { get; set; }
+        private string _duration = null;
+        public string Duration
+        {
+            get
+            {
+                return _duration;
+            }
+            set
+            {
+                _duration = Course.FormatDuration(value);
+            }
+        }
 
         public string ReleaseDate { get; set; }
 
@@ -46,15 +57,7 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public ExerciseFiles ExerciseFiles { get; set; }
 
-        public long DurationSeconds
-        {
-            get
-            {
-                return Course.ConvertDurationToSeconds(Duration);
-            }
-        }
-
-        public static long ConvertDurationToSeconds(string duration)
+        public static string FormatDuration(string duration)
         {
             long hour = 0;
             long minute = 0;
@@ -77,17 +80,9 @@ namespace PluralsightDownloader.Web.ViewModel
                     long.TryParse(sTimes.Split('S')[0].Split('.')[0], out second);
                     sTimes = sTimes.Split('S')[1];
                 }
+                duration = hour.ToString("D2") + ":" + minute.ToString("D2") + ":" + second.ToString("D2");
             }
-            else
-            {
-                string[] times = duration.Split(':');
-                hour = long.Parse(times[0]);
-                minute = long.Parse(times[1]);
-                second = long.Parse(times[2]);
-            }
-            return (hour * 3600
-                        + minute * 60
-                        + second);
+            return duration;
         }
     }
 }

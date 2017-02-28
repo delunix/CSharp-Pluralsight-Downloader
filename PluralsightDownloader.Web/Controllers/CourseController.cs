@@ -123,7 +123,7 @@ namespace PluralsightDownloader.Web.Controllers
                             receivedBytes += bytesRead;
                             var progress = new ProgressArgs()
                             {
-                                Id = clipToSave.Name,
+                                Id = clipToSave.Title,
                                 BytesReceived = receivedBytes,
                                 FileName = videoFileName,
                                 TotalBytes = totalBytes,
@@ -155,7 +155,7 @@ namespace PluralsightDownloader.Web.Controllers
 
                 return Ok(new ProgressArgs()
                 {
-                    Id = clipToSave.Name,
+                    Id = clipToSave.Title,
                     BytesReceived = receivedBytes,
                     FileName = videoFileName,
                     TotalBytes = totalBytes,
@@ -216,7 +216,8 @@ namespace PluralsightDownloader.Web.Controllers
                 sendStream.Write(dataBytes, 0, dataBytes.Length);
 
             // if the clip is not free, then the user must sign in first and set authentication cookie.
-            if (!clip.UserMayViewClip)
+            // Though it's simpler just to authenticate once and for all...
+            if (Constants.USER_NAME.Length > 0)
                 SetupAuthenticationCookie(http);
             try
             {

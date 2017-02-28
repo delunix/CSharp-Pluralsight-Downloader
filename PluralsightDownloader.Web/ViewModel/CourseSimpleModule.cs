@@ -4,6 +4,10 @@ namespace PluralsightDownloader.Web.ViewModel
 {
     public class CourseSimpleModule
     {
+        private static int GlobalIndex = 0;
+
+        public int ModuleIndex { get; set; }
+
         public string ID { get; set; }
 
         public string Title { get; set; }
@@ -12,6 +16,12 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public string Duration { get; set; }
 
-        public List<CourseClip> Clips { get; set; }
+        public List<CourseSimpleClip> Clips { get; set; }
+
+        public CourseSimpleModule()
+        {
+            this.ModuleIndex = GlobalIndex++;
+            CourseSimpleClip.ResetIndex();
+        }
     }
 }

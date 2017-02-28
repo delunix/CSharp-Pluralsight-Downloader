@@ -36,7 +36,7 @@
                     </tr>
                     <tr>
                         <td class="bold">Duration: </td>
-                        <td ng-bind="vm.course.durationseconds"></td>
+                        <td ng-bind="vm.course.content.duration"></td>
                     </tr>
                     <tr>
                         <td class="bold">Level: </td>
@@ -81,7 +81,7 @@
                                     <span class="label label-success italic" ng-if="clip.progress.hasBeenDownloaded"><i class="glyphicon-ok glyphicon"></i> Downloaded</span>
                                     <span class="label label-default italic" ng-if="!clip.progress.hasBeenDownloaded">Not downloaded yet!</span>
                                 </td>
-                                <td ng-bind="clip.durationseconds"></td>
+                                <td ng-bind="clip.duration"></td>
                                 <td>
                                     <span class="mayview glyphicon glyphicon-ok-circle center-block text-center text-success" ng-if="clip.userMayViewClip"></span>
                                     <span class="mayview glyphicon glyphicon-ban-circle center-block text-center text-danger" ng-if="!clip.userMayViewClip"></span>

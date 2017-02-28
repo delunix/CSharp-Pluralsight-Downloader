@@ -1,6 +1,6 @@
 ﻿namespace PluralsightDownloader.Web.ViewModel
 {
-    public class ClipToSave : CourseClip
+    public class ClipToSave : CourseSimpleClip
     {
         public bool SupportsWideScreenVideoFormats { get; set; }
 
