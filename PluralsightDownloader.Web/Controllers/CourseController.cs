@@ -183,9 +183,9 @@ namespace PluralsightDownloader.Web.Controllers
         private DirectoryInfo SetUpVideoFolderStructure(string courseTitle, string moduleTitle, string clipTitle)
         {
             Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH);
-            Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " + courseTitle.ToValidFileName());
+            Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\" + courseTitle.ToValidFileName());
 
-            return Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\PluralSight - " +
+            return Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\" +
                                           courseTitle.ToValidFileName() + "\\" + moduleTitle.ToValidFileName());
         }
 
