@@ -76,6 +76,8 @@
         }
 
         function addClipToDownloadList(clip, module) {
+            if (clip.hasBeenDownloaded)
+                return;
             var clipFound = _.find(vm.clipsToDownloadQueue, function (item) {
                 return item.clip.id === clip.id;
             });
@@ -133,8 +135,9 @@
                     bodyOutputType: 'trustedHtml'
                 });
                 $timeout(function () {
+                    clip.hasBeenDownloaded = true;
                     clip.progress.isDownloading = false;
-                }, 500); // sometimes, progress callback comes after success callbak.
+                }, 500); // sometimes, progress callback comes after success callback.
             }, function (errorResponse) {
                 switch (errorResponse.status) {
                     case 429:
