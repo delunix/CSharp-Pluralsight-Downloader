@@ -68,6 +68,8 @@ namespace PluralsightDownloader.Web.Controllers
                     {
                         module.Clips.ForEachWithIndex((clip, clipIndex) =>
                         {
+                            clip.ModuleIndex = moduleIndex;
+                            clip.VideoDirectory = GetVideoFolderStructure(course.Title, module.Title, clip);
                             clip.TranscriptClip = transcript.Modules[moduleIndex].Clips[clipIndex];
                         });
                     });
@@ -91,9 +93,7 @@ namespace PluralsightDownloader.Web.Controllers
                 clipUrl = GetClipUrl(clipToSave);
 
                 // 2- make sure the folders structure exist.
-                var videoSaveDirectory = SetUpVideoFolderStructure(clipToSave.CourseTitle,
-                    (clipToSave.ModuleIndex + 1).ToString("D2") + " - " + clipToSave.ModuleTitle,
-                    (clipToSave.ClipIndex + 1).ToString("D2") + " - " + clipToSave.Title);
+                var videoSaveDirectory = SetUpVideoFolderStructure(clipToSave.CourseTitle, clipToSave.ModuleTitle, clipToSave);
 
                 // 3- download the video and report progress back.
                 int receivedBytes = 0;
@@ -180,13 +180,16 @@ namespace PluralsightDownloader.Web.Controllers
         }
 
         // ToDo: videos location should be configurable from client.
-        private DirectoryInfo SetUpVideoFolderStructure(string courseTitle, string moduleTitle, string clipTitle)
+        private string GetVideoFolderStructure(string courseTitle, string moduleTitle, CourseSimpleClip clip)
         {
             Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH);
             Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\" + courseTitle.ToValidFileName());
 
-            return Directory.CreateDirectory(Constants.DOWNLOAD_FOLDER_PATH + "\\" +
-                                          courseTitle.ToValidFileName() + "\\" + moduleTitle.ToValidFileName());
+            return Constants.DOWNLOAD_FOLDER_PATH + "\\" + courseTitle.ToValidFileName() + "\\" + (clip.ModuleIndex + 1).ToString("D2") + " - " + moduleTitle.ToValidFileName();
+        }
+        private DirectoryInfo SetUpVideoFolderStructure(string courseTitle, string moduleTitle, CourseSimpleClip clip)
+        {
+            return Directory.CreateDirectory(GetVideoFolderStructure(courseTitle, moduleTitle, clip));
         }
 
         private ClipDownloadData GetClipUrl(ClipToSave clip)

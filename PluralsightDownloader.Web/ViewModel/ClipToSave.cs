@@ -7,7 +7,5 @@
         public string CourseTitle { get; set; }
 
         public string ModuleTitle { get; set; }
-
-        public int ModuleIndex { get; set; }
     }
 }

@@ -133,7 +133,6 @@
                     bodyOutputType: 'trustedHtml'
                 });
                 $timeout(function () {
-                    clip.progress.hasBeenDownloaded = true;
                     clip.progress.isDownloading = false;
                 }, 500); // sometimes, progress callback comes after success callbak.
             }, function (errorResponse) {
@@ -169,7 +168,6 @@
                         break;
                 }
                 clip.progress.isDownloading = false;
-                clip.progress.hasBeenDownloaded = false;
             }).finally(function () {
                 vm.currentlyDownloading = false;
                 // fire an event notifying that a clip has been saved/processed.

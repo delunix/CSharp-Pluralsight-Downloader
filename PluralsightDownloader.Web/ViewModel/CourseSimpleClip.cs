@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using PluralsightDownloader.Web.Extensions;
+using System.IO;
 
 namespace PluralsightDownloader.Web.ViewModel
 {
@@ -11,6 +13,8 @@ namespace PluralsightDownloader.Web.ViewModel
         }
 
         public int ClipIndex { get; set; }
+
+        public int ModuleIndex { get; set; }
 
         public string ID { get; set; }
 
@@ -35,9 +39,29 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public TranscriptClip TranscriptClip { get; set; }
 
+        public string VideoDirectory { get; set; }
+
+        public string FileName
+        {
+            get
+            {
+                return ((this.ClipIndex + 1).ToString("D2") + " - " + this.Title + ".mp4").ToValidFileName();
+            }
+        }
+
         public bool HasBeenViewed { get; set; }
 
-        public bool HasBeenDownloaded { get; set; }
+        public bool HasBeenDownloaded
+        {
+            get
+            {
+                return File.Exists(this.VideoDirectory + "//" + this.FileName);
+            }
+            set
+            {
+
+            }
+        }
 
         public string PlayerParameters { get; set; }
 
