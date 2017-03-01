@@ -71,7 +71,16 @@ namespace PluralsightDownloader.Web.ViewModel
 
         public bool IsHighlighted { get; set; }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get
+            {
+                return ID.Substring(ID.LastIndexOf('|') + 1);
+            }
+            set
+            {
+            }
+        }
 
         public bool IsBookmarked { get; set; }
 

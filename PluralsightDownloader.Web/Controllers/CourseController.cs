@@ -124,7 +124,7 @@ namespace PluralsightDownloader.Web.Controllers
                             receivedBytes += bytesRead;
                             var progress = new ProgressArgs()
                             {
-                                Id = clipToSave.Title,
+                                Id = clipToSave.Name,
                                 BytesReceived = receivedBytes,
                                 FileName = videoFileName,
                                 TotalBytes = totalBytes,
@@ -156,7 +156,7 @@ namespace PluralsightDownloader.Web.Controllers
 
                 return Ok(new ProgressArgs()
                 {
-                    Id = clipToSave.Title,
+                    Id = clipToSave.Name,
                     BytesReceived = receivedBytes,
                     FileName = videoFileName,
                     TotalBytes = totalBytes,

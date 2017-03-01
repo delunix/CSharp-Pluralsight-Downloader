@@ -5,6 +5,10 @@ namespace PluralsightDownloader.Web.ViewModel
     public class CourseSimpleModule
     {
         private static int GlobalIndex = 0;
+        public static void ResetIndex()
+        {
+            GlobalIndex = 0;
+        }
 
         public int ModuleIndex { get; set; }
 
