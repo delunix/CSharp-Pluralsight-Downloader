@@ -41,6 +41,7 @@ namespace PluralsightDownloader.Web.Controllers
                 {
                     json = webClient.DownloadString(string.Format(Constants.COURSE_DATA_URL, coursename));
                     course = JsonConvert.DeserializeObject<Course>(json);
+                    CourseSimpleModule.ResetIndex();
 
                     NameValueCollection postData = new NameValueCollection() { { "courseId", coursename } };
                     byte[] responsebytes = webClient.UploadValues(Constants.COURSE_PAYLOAD_DATA_URL, postData);
