@@ -76,8 +76,10 @@
         }
 
         function addClipToDownloadList(clip, module) {
+            if (clip.hasBeenDownloaded)
+                return;
             var clipFound = _.find(vm.clipsToDownloadQueue, function (item) {
-                return item.clip.name === clip.name;
+                return item.clip.id === clip.id;
             });
             if (!clipFound) {
                 vm.clipsToDownloadQueue.push({ clip: clip, module: module });
@@ -98,7 +100,7 @@
         }
 
         function addCourseToDownloadList() {
-            _.forEach(vm.course.courseModules, function (module) {
+            _.forEach(vm.course.content.modules, function (module) {
                 module.isAccordionOpen = true;
                 vm.addModuleToDownloadList(module);
             });
@@ -124,9 +126,7 @@
             clip.courseTitle = vm.course.title;
             clip.moduleTitle = module.title;
             clip.supportsWideScreenVideoFormats = vm.course.supportsWideScreenVideoFormats;
-            clip.moduleIndex = _.findIndex(vm.course.courseModules, function (moduleItem) {
-                return moduleItem.title === module.title;
-            });
+            clip.moduleIndex = module.moduleIndex;
             return coursesService.downloadCourseModuleClip(clip).then(function (progress) {
                 toaster.pop({
                     type: 'success',
@@ -135,9 +135,9 @@
                     bodyOutputType: 'trustedHtml'
                 });
                 $timeout(function () {
-                    clip.progress.hasBeenDownloaded = true;
+                    clip.hasBeenDownloaded = true;
                     clip.progress.isDownloading = false;
-                }, 500); // sometimes, progress callback comes after success callbak.
+                }, 500); // sometimes, progress callback comes after success callback.
             }, function (errorResponse) {
                 switch (errorResponse.status) {
                     case 429:
@@ -171,7 +171,6 @@
                         break;
                 }
                 clip.progress.isDownloading = false;
-                clip.progress.hasBeenDownloaded = false;
             }).finally(function () {
                 vm.currentlyDownloading = false;
                 // fire an event notifying that a clip has been saved/processed.

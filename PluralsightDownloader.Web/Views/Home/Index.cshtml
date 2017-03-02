@@ -36,7 +36,7 @@
                     </tr>
                     <tr>
                         <td class="bold">Duration: </td>
-                        <td ng-bind="vm.course.duration"></td>
+                        <td ng-bind="vm.course.content.duration"></td>
                     </tr>
                     <tr>
                         <td class="bold">Level: </td>
@@ -56,7 +56,7 @@
                 </button>
             </h2>
             <uib-accordion close-others="false">
-                <uib-accordion-group ng-repeat="module in vm.course.courseModules" heading="{{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}" is-open="module.isAccordionOpen">
+                <uib-accordion-group ng-repeat="module in vm.course.content.modules" heading="{{($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'}}" is-open="module.isAccordionOpen">
                     <uib-accordion-heading>
                         <span ng-bind="($index + 1) + '- ' + module.title + ' (# of clips: '+ module.clips.length +')'" ng-click="toggleModuleAccordion(module)"></span>
                         <div class="pull-right btn-group btn-group-xs">
@@ -78,8 +78,8 @@
                             <tr ng-repeat="clip in module.clips">
                                 <td>
                                     {{($index + 1) + '- ' + clip.title}}
-                                    <span class="label label-success italic" ng-if="clip.progress.hasBeenDownloaded"><i class="glyphicon-ok glyphicon"></i> Downloaded</span>
-                                    <span class="label label-default italic" ng-if="!clip.progress.hasBeenDownloaded">Not downloaded yet!</span>
+                                    <span class="label label-success italic" ng-if="clip.hasBeenDownloaded"><i class="glyphicon-ok glyphicon"></i> Downloaded</span>
+                                    <span class="label label-default italic" ng-if="!clip.hasBeenDownloaded">Not downloaded yet!</span>
                                 </td>
                                 <td ng-bind="clip.duration"></td>
                                 <td>
@@ -88,7 +88,7 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <button class="btn btn-success" ng-click="vm.addClipToDownloadList(clip, module)" ng-disabled="(clip.progress.isDownloading) || clip.progress.hasBeenDownloaded">
+                                        <button class="btn btn-success" ng-click="vm.addClipToDownloadList(clip, module)" ng-disabled="(clip.progress.isDownloading) || clip.hasBeenDownloaded">
                                             <i class="glyphicon glyphicon-download"></i> Download
                                         </button>
                                     </div>
@@ -98,13 +98,13 @@
                                 </td>
                                 <td valign="middle" class="text-center">
                                     <div class="radio">
-                                        <input type="radio" name="alreadyDownloaded{{$parent.$index + '' + $index}}" id="downloaded{{$parent.$index + '' + $index}}" ng-value="true" ng-model="clip.progress.hasBeenDownloaded" ng-disabled="(clip.progress.isDownloading)">
+                                        <input type="radio" name="alreadyDownloaded{{$parent.$index + '' + $index}}" id="downloaded{{$parent.$index + '' + $index}}" ng-value="true" ng-model="clip.hasBeenDownloaded" ng-disabled="(clip.progress.isDownloading)">
                                         <label for="downloaded{{$parent.$index + '' + $index}}">
                                             Yep
                                         </label>
                                     </div>
                                     <div class="radio">
-                                        <input type="radio" name="alreadyDownloaded{{$parent.$index + '' + $index}}" id="notdownloaded{{$parent.$index + '' + $index}}" ng-value="false" ng-model="clip.progress.hasBeenDownloaded" ng-disabled="(clip.progress.isDownloading)">
+                                        <input type="radio" name="alreadyDownloaded{{$parent.$index + '' + $index}}" id="notdownloaded{{$parent.$index + '' + $index}}" ng-value="false" ng-model="clip.hasBeenDownloaded" ng-disabled="(clip.progress.isDownloading)">
                                         <label for="notdownloaded{{$parent.$index + '' + $index}}">
                                             Nope
                                         </label>
